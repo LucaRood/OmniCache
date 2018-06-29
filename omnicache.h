@@ -19,7 +19,7 @@ typedef enum OmniReadResult {
 	OMNI_READ_INVALID	= 0,
 	OMNI_READ_OUTDATED	= 1,
 	OMNI_READ_INTERP	= 2,
-	OMNI_READ_EXACT	= 3,
+	OMNI_READ_EXACT		= 3,
 } OmniReadResult;
 
 typedef enum OmniTimeType {

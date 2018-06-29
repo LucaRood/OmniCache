@@ -6,22 +6,71 @@
 
 /* Flagging utils */
 
-void block_set_flags(OmniBlockStatusFlags *sflags, OmniBlockStatusFlags flags)
+void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags)
+{
+	OmniSample *sample = block->parent;
+
+	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
+		flags |= OMNI_BLOCK_STATUS_VALID;
+
+		if (!(block->sflags & OMNI_BLOCK_STATUS_CURRENT)) {
+			sample->num_blocks_old--;
+		}
+	}
+
+	if (flags & OMNI_BLOCK_STATUS_VALID) {
+		if (!(block->sflags & OMNI_BLOCK_STATUS_VALID)) {
+			sample->num_blocks_invalid--;
+		}
+	}
+
+	block->sflags |= flags;
+}
+
+void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
+{
+	OmniSample *sample = block->parent;
+
+	if (flags & OMNI_BLOCK_STATUS_VALID) {
+		flags |= OMNI_BLOCK_STATUS_CURRENT;
+
+		if (block->sflags & OMNI_BLOCK_STATUS_VALID) {
+			sample->num_blocks_invalid++;
+			sample->sflags &= ~OMNI_SAMPLE_STATUS_VALID;
+		}
+	}
+
+	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
+		if (block->sflags & OMNI_BLOCK_STATUS_CURRENT) {
+			sample->num_blocks_old++;
+			sample->sflags &= ~OMNI_SAMPLE_STATUS_CURRENT;
+		}
+	}
+
+	block->sflags &= ~flags;
+}
+
+void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 {
 	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
 		flags |= OMNI_BLOCK_STATUS_VALID;
 	}
 
-	*sflags |= flags;
+	sample->meta.sflags |= flags;
 }
 
-void block_unset_flags(OmniBlockStatusFlags *sflags, OmniBlockStatusFlags flags)
+void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 {
 	if (flags & OMNI_BLOCK_STATUS_VALID) {
 		flags |= OMNI_BLOCK_STATUS_CURRENT;
+		sample->sflags &= ~OMNI_SAMPLE_STATUS_VALID;
 	}
 
-	*sflags &= ~flags;
+	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
+		sample->sflags &= ~OMNI_SAMPLE_STATUS_CURRENT;
+	}
+
+	sample->meta.sflags &= ~flags;
 }
 
 void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags)
@@ -148,13 +197,15 @@ void init_sample_blocks(OmniSample *sample)
 		OmniCache *cache = sample->parent;
 
 		sample->blocks = calloc(cache->num_blocks, sizeof(OmniBlock));
+		sample->num_blocks_invalid = cache->num_blocks;
+		sample->num_blocks_old = cache->num_blocks;
 
 		for (uint i = 0; i < cache->num_blocks; i++) {
 			OmniBlock *block = &sample->blocks[i];
 
 			block->parent = sample;
 
-			block_set_flags(&block->sflags, OMNI_BLOCK_STATUS_INITED);
+			block_set_flags(block, OMNI_BLOCK_STATUS_INITED);
 		}
 	}
 }

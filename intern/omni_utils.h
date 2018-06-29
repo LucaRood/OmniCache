@@ -16,8 +16,11 @@
 
 typedef void (*iter_callback)(OmniSample *sample);
 
-void block_set_flags(OmniBlockStatusFlags *sflags, OmniBlockStatusFlags flags);
-void block_unset_flags(OmniBlockStatusFlags *sflags, OmniBlockStatusFlags flags);
+void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags);
+void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags);
+
+void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags);
+void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags);
 
 void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags);
 void sample_unset_flags(OmniSample *sample, OmniSampleStatusFlags flags);

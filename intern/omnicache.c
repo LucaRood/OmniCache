@@ -118,7 +118,7 @@ static void blocks_free(OmniSample *sample)
 		sample->meta.data = NULL;
 	}
 
-	block_unset_flags(&sample->meta.sflags, OMNI_BLOCK_STATUS_VALID);
+	meta_unset_flags(sample, OMNI_BLOCK_STATUS_VALID);
 	sample_unset_flags(sample, OMNI_SAMPLE_STATUS_VALID);
 }
 
@@ -285,10 +285,10 @@ bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 		omni_data.data = block->data;
 
 		if (b_info->write(&omni_data, data)) {
-			block_set_flags(&block->sflags, OMNI_BLOCK_STATUS_CURRENT);
+			block_set_flags(block, OMNI_BLOCK_STATUS_CURRENT);
 		}
 		else {
-			block_unset_flags(&block->sflags, OMNI_BLOCK_STATUS_VALID);
+			block_unset_flags(block, OMNI_BLOCK_STATUS_VALID);
 			sample_unset_flags(sample, OMNI_SAMPLE_STATUS_VALID);
 
 			return false;
@@ -304,10 +304,10 @@ bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 		}
 
 		if (cache->meta_gen(data, sample->meta.data)) {
-			block_set_flags(&sample->meta.sflags, OMNI_BLOCK_STATUS_CURRENT);
+			meta_set_flags(sample, OMNI_BLOCK_STATUS_CURRENT);
 		}
 		else {
-			block_unset_flags(&sample->meta.sflags, OMNI_BLOCK_STATUS_VALID);
+			meta_unset_flags(sample, OMNI_BLOCK_STATUS_VALID);
 			sample_unset_flags(sample, OMNI_SAMPLE_STATUS_VALID);
 
 			return false;
