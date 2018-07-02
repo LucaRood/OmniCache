@@ -144,7 +144,7 @@ typedef OmniBlockTemplate OmniBlockTemplateArray[];
 float_or_uint OMNI_f_to_fu(float val);
 float_or_uint OMNI_u_to_fu(uint val);
 
-OmniCache *OMNI_new(OmniCacheTemplate *c_temp, OmniBlockTemplateArray b_temp);
+OmniCache *OMNI_new(const OmniCacheTemplate *c_temp, const OmniBlockTemplateArray b_temp);
 void OMNI_free(OmniCache *cache);
 
 bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
