@@ -332,18 +332,18 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 	for (uint i = 0; i < cache->num_blocks; i++) {
 		OmniBlockInfo *b_info = &cache->block_index[i];
 		OmniBlock *block = &sample->blocks[i];
-		OmniData omnic_data;
+		OmniData omni_data;
 
 		if (!(block->sflags & OMNI_BLOCK_STATUS_VALID)) {
 			return OMNI_READ_INVALID;
 		}
 
-		omnic_data.dtype = b_info->dtype;
-		omnic_data.dsize = b_info->dsize;
-		omnic_data.dcount = block->dcount;
-		omnic_data.data = block->data;
+		omni_data.dtype = b_info->dtype;
+		omni_data.dsize = b_info->dsize;
+		omni_data.dcount = block->dcount;
+		omni_data.data = block->data;
 
-		if (!b_info->read(&omnic_data, data)) {
+		if (!b_info->read(&omni_data, data)) {
 			return OMNI_READ_INVALID;
 		}
 

@@ -75,8 +75,8 @@ typedef struct OmniInterpData {
 } OmniInterpData;
 
 typedef uint (*OmniCountCallback)(void *user_data);
-typedef bool (*OmniReadCallback)(OmniData *omnic_data, void *user_data);
-typedef bool (*OmniWriteCallback)(OmniData *omnic_data, void *user_data);
+typedef bool (*OmniReadCallback)(OmniData *omni_data, void *user_data);
+typedef bool (*OmniWriteCallback)(OmniData *omni_data, void *user_data);
 typedef bool (*OmniInterpCallback)(OmniInterpData *interp_data);
 
 typedef bool (*OmnicMetaGenCallback)(void *user_data, void *result);
