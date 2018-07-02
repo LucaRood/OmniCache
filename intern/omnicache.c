@@ -355,6 +355,40 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 	return result;
 }
 
+void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint time_final, float_or_uint time_step)
+{
+	bool changed = false;
+
+	assert(FU_FL_GT(time_step, 0.0f));
+	assert(cache->ttype == time_initial.isf);
+	assert(cache->ttype == time_final.isf);
+	assert(cache->ttype == time_step.isf);
+	assert(FU_LE(time_initial, time_final));
+
+	if (!FU_EQ(time_initial, cache->tinitial)) {
+		changed = true;
+
+		cache->tinitial = time_initial;
+	}
+
+	if (!FU_EQ(time_final, cache->tfinal)) {
+		changed = true;
+
+		cache->tfinal = time_final;
+	}
+
+	if (!FU_EQ(time_step, cache->tstep)) {
+		changed = true;
+
+		cache->tstep = time_step;
+	}
+
+	/* TODO: Optionally clip/extend cache instead of freeing. */
+	if (changed) {
+		samples_free(cache);
+	}
+}
+
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, false);
