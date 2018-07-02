@@ -138,6 +138,9 @@ typedef OmniBlockTemplate OmniBlockTemplateArray[];
  * API Functions *
  *****************/
 
+#define OMNI_F_TO_FU(val) {.isf = true, .f = val}
+#define OMNI_U_TO_FU(val) {.isf = false, .u = val}
+
 float_or_uint OMNI_f_to_fu(float val);
 float_or_uint OMNI_u_to_fu(uint val);
 
