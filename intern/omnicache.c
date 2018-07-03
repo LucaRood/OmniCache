@@ -402,6 +402,21 @@ void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint 
 	}
 }
 
+void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint *time_final, float_or_uint *time_step)
+{
+	if (time_initial) {
+		*time_initial = cache->tinitial;
+	}
+
+	if (time_final) {
+		*time_final = cache->tfinal;
+	}
+
+	if (time_step) {
+		*time_initial = cache->tstep;
+	}
+}
+
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, false);

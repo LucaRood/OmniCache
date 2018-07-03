@@ -152,6 +152,7 @@ bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data);
 
 void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint time_final, float_or_uint time_step);
+void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint *time_final, float_or_uint *time_step);
 
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time);
 bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time);
