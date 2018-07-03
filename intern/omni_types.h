@@ -100,8 +100,10 @@ typedef struct OmniSample {
 /* Cache */
 
 typedef enum OmniCacheStatusFlags {
-	OMNICACHE_STATUS_SYNCED		= (1 << 0), /* Set if all blocks are valid in all existing samples. */
-	OMNICACHE_STATUS_COMPLETE	= (1 << 1), /* Set if the whole frame range is cached (valid). */
+	OMNICACHE_STATUS_INITED		= (1 << 0),
+	OMNICACHE_STATUS_VALID		= (1 << 1), /* Set if all existing samples are valid. */
+	OMNICACHE_STATUS_CURRENT	= (1 << 2), /* Set if all existing samples are current. */
+	OMNICACHE_STATUS_COMPLETE	= (1 << 3), /* Set if the whole frame range is cached (valid). */
 } OmniCacheStatusFlags;
 
 typedef struct OmniCache {

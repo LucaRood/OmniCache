@@ -30,24 +30,28 @@ void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 {
 	OmniSample *sample = block->parent;
+	OmniSampleStatusFlags sample_flags = 0;
 
 	if (flags & OMNI_BLOCK_STATUS_VALID) {
 		flags |= OMNI_BLOCK_STATUS_CURRENT;
+		sample_flags |= OMNI_SAMPLE_STATUS_VALID;
 
 		if (block->sflags & OMNI_BLOCK_STATUS_VALID) {
 			sample->num_blocks_invalid++;
-			sample->sflags &= ~OMNI_SAMPLE_STATUS_VALID;
 		}
 	}
 
 	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
+		sample_flags |= OMNI_SAMPLE_STATUS_CURRENT;
+
 		if (block->sflags & OMNI_BLOCK_STATUS_CURRENT) {
 			sample->num_blocks_old++;
-			sample->sflags &= ~OMNI_SAMPLE_STATUS_CURRENT;
 		}
 	}
 
 	block->sflags &= ~flags;
+
+	sample_unset_flags(sample, sample_flags);
 }
 
 void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags)
@@ -61,16 +65,20 @@ void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 
 void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 {
+	OmniSampleStatusFlags sample_flags = 0;
+
 	if (flags & OMNI_BLOCK_STATUS_VALID) {
 		flags |= OMNI_BLOCK_STATUS_CURRENT;
-		sample->sflags &= ~OMNI_SAMPLE_STATUS_VALID;
+		sample_flags |= OMNI_SAMPLE_STATUS_VALID;
 	}
 
 	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
-		sample->sflags &= ~OMNI_SAMPLE_STATUS_CURRENT;
+		sample_flags |= OMNI_SAMPLE_STATUS_CURRENT;
 	}
 
 	sample->meta.sflags &= ~flags;
+
+	sample_unset_flags(sample, sample_flags);
 }
 
 void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags)
@@ -97,6 +105,32 @@ void sample_unset_flags(OmniSample *sample, OmniSampleStatusFlags flags)
 	}
 
 	sample->sflags &= ~flags;
+}
+
+void cache_set_flags(OmniCache *cache, OmniCacheStatusFlags flags)
+{
+	if (flags & OMNICACHE_STATUS_CURRENT) {
+		flags |= OMNICACHE_STATUS_VALID;
+	}
+
+	if (flags & OMNICACHE_STATUS_VALID) {
+		flags |= OMNICACHE_STATUS_INITED;
+	}
+
+	cache->sflags |= flags;
+}
+
+void cache_unset_flags(OmniCache *cache, OmniCacheStatusFlags flags)
+{
+	if (flags & OMNICACHE_STATUS_INITED) {
+		flags |= OMNICACHE_STATUS_VALID;
+	}
+
+	if (flags & OMNICACHE_STATUS_VALID) {
+		flags |= OMNICACHE_STATUS_CURRENT;
+	}
+
+	cache->sflags &= ~flags;
 }
 
 /* Sample utils */

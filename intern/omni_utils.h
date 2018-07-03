@@ -25,6 +25,9 @@ void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags);
 void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags);
 void sample_unset_flags(OmniSample *sample, OmniSampleStatusFlags flags);
 
+void cache_set_flags(OmniCache *cache, OmniCacheStatusFlags flags);
+void cache_unset_flags(OmniCache *cache, OmniCacheStatusFlags flags);
+
 sample_time gen_sample_time(OmniCache *cache, float_or_uint time);
 
 void samples_iterate(OmniSample *start, iter_callback list, iter_callback root, iter_callback first);

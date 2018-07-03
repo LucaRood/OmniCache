@@ -247,6 +247,8 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 		}
 	}
 
+	cache_set_flags(cache, OMNICACHE_STATUS_CURRENT);
+
 	return cache;
 }
 
@@ -321,8 +323,19 @@ bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *sample = NULL;
 	OmniReadResult result = OMNI_READ_EXACT;
+
+	/* TODO: Status flags should be generalized so that IS_VALID and IS_CURRENT can be used here. */
+	if (!(cache->sflags & OMNICACHE_STATUS_VALID)) {
+		return OMNI_READ_INVALID;
+	}
+
+	if (!(cache->sflags & OMNICACHE_STATUS_CURRENT)) {
+		result = OMNI_READ_OUTDATED;
+	}
+
+	sample = sample_get_from_time(cache, time, false);
 
 	/* TODO: Interpolation. */
 	if (!IS_VALID(sample)) {
@@ -403,6 +416,16 @@ bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time)
 	return IS_CURRENT(sample);
 }
 
+void OMNI_mark_old(OmniCache *cache)
+{
+	cache_unset_flags(cache, OMNICACHE_STATUS_CURRENT);
+}
+
+void OMNI_mark_invalid(OmniCache *cache)
+{
+	cache_unset_flags(cache, OMNICACHE_STATUS_VALID);
+}
+
 void OMNI_sample_mark_old(OmniCache *cache, float_or_uint time)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, false);
@@ -438,6 +461,7 @@ void OMNI_sample_clear(OmniCache *cache, float_or_uint time)
 	}
 }
 
+/* TODO: Should mark samples from time even if sample at exact time does not exist. */
 void OMNI_sample_mark_old_from(OmniCache *cache, float_or_uint time)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, false);
