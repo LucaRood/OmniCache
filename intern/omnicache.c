@@ -419,16 +419,22 @@ void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint
 
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	/* TODO: Status flags should be generalized so that IS_VALID and IS_CURRENT can be used here. */
+	if (!(cache->sflags & OMNICACHE_STATUS_VALID)) {
+		return false;
+	}
 
-	return IS_VALID(sample);
+	return IS_VALID(sample_get_from_time(cache, time, false));
 }
 
 bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	/* TODO: Status flags should be generalized so that IS_VALID and IS_CURRENT can be used here. */
+	if (!(cache->sflags & OMNICACHE_STATUS_CURRENT)) {
+		return false;
+	}
 
-	return IS_CURRENT(sample);
+	return IS_CURRENT(sample_get_from_time(cache, time, false));
 }
 
 void OMNI_mark_outdated(OmniCache *cache)
