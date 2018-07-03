@@ -14,7 +14,7 @@ void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 		flags |= OMNI_BLOCK_STATUS_VALID;
 
 		if (!(block->sflags & OMNI_BLOCK_STATUS_CURRENT)) {
-			sample->num_blocks_old--;
+			sample->num_blocks_outdated--;
 		}
 	}
 
@@ -45,7 +45,7 @@ void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 		sample_flags |= OMNI_SAMPLE_STATUS_CURRENT;
 
 		if (block->sflags & OMNI_BLOCK_STATUS_CURRENT) {
-			sample->num_blocks_old++;
+			sample->num_blocks_outdated++;
 		}
 	}
 
@@ -232,7 +232,7 @@ void init_sample_blocks(OmniSample *sample)
 
 		sample->blocks = calloc(cache->num_blocks, sizeof(OmniBlock));
 		sample->num_blocks_invalid = cache->num_blocks;
-		sample->num_blocks_old = cache->num_blocks;
+		sample->num_blocks_outdated = cache->num_blocks;
 
 		for (uint i = 0; i < cache->num_blocks; i++) {
 			OmniBlock *block = &sample->blocks[i];

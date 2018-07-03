@@ -91,7 +91,7 @@ typedef struct OmniSample {
 	float_or_uint toffset;
 
 	uint num_blocks_invalid;
-	uint num_blocks_old;
+	uint num_blocks_outdated;
 
 	OmniBlock *blocks;
 } OmniSample;

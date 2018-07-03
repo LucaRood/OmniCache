@@ -155,14 +155,14 @@ void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint 
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time);
 bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time);
 
-void OMNI_mark_old(OmniCache *cache);
+void OMNI_mark_outdated(OmniCache *cache);
 void OMNI_mark_invalid(OmniCache *cache);
 
-void OMNI_sample_mark_old(OmniCache *cache, float_or_uint time);
+void OMNI_sample_mark_outdated(OmniCache *cache, float_or_uint time);
 void OMNI_sample_mark_invalid(OmniCache *cache, float_or_uint time);
 void OMNI_sample_clear(OmniCache *cache, float_or_uint time);
 
-void OMNI_sample_mark_old_from(OmniCache *cache, float_or_uint time);
+void OMNI_sample_mark_outdated_from(OmniCache *cache, float_or_uint time);
 void OMNI_sample_mark_invalid_from(OmniCache *cache, float_or_uint time);
 void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time);
 

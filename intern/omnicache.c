@@ -124,7 +124,7 @@ static void blocks_free(OmniSample *sample)
 
 /* Sample iterator helpers */
 
-static void sample_mark_old(OmniSample *sample)
+static void sample_mark_outdated(OmniSample *sample)
 {
 	sample_unset_flags(sample, OMNI_SAMPLE_STATUS_CURRENT);
 }
@@ -416,7 +416,7 @@ bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time)
 	return IS_CURRENT(sample);
 }
 
-void OMNI_mark_old(OmniCache *cache)
+void OMNI_mark_outdated(OmniCache *cache)
 {
 	cache_unset_flags(cache, OMNICACHE_STATUS_CURRENT);
 }
@@ -426,12 +426,12 @@ void OMNI_mark_invalid(OmniCache *cache)
 	cache_unset_flags(cache, OMNICACHE_STATUS_VALID);
 }
 
-void OMNI_sample_mark_old(OmniCache *cache, float_or_uint time)
+void OMNI_sample_mark_outdated(OmniCache *cache, float_or_uint time)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, false);
 
 	if (sample) {
-		sample_mark_old(sample);
+		sample_mark_outdated(sample);
 	}
 }
 
@@ -462,12 +462,12 @@ void OMNI_sample_clear(OmniCache *cache, float_or_uint time)
 }
 
 /* TODO: Should mark samples from time even if sample at exact time does not exist. */
-void OMNI_sample_mark_old_from(OmniCache *cache, float_or_uint time)
+void OMNI_sample_mark_outdated_from(OmniCache *cache, float_or_uint time)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, false);
 
 	if (sample) {
-		samples_iterate(sample, sample_mark_old, sample_mark_old, NULL);
+		samples_iterate(sample, sample_mark_outdated, sample_mark_outdated, NULL);
 	}
 }
 
