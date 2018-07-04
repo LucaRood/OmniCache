@@ -87,13 +87,14 @@ typedef bool (*OmnicMetaGenCallback)(void *user_data, void *result);
 
 typedef enum OmniBlockFlags {
 	OMNI_BLOCK_FLAG_CONTINUOUS	= (1 << 0), /* Continuous data that can be interpolated. */
+	OMNI_BLOCK_FLAG_CONST_COUNT	= (1 << 1), /* Element count does not change between samples. (TODO: Check constness when writing) */
 } OmniBlockFlags;
 
 typedef enum OmniCacheFlags {
 	OMNICACHE_FLAG_FRAMED		= (1 << 0), /* Time in frames instead of seconds. */
-	OMNICACHE_FLAG_INTERPOLATE	= (1 << 1), /* Interpolation is enabled. */
+	OMNICACHE_FLAG_INTERP_ANY	= (1 << 1), /* Interpolate when reading any inexistant sample is enabled. */
+	OMNICACHE_FLAG_INTERP_SUB	= (1 << 2), /* Interpolate only when reading between `time_step` increments. */
 } OmniCacheFlags;
-
 
 /*************
  * Templates *
