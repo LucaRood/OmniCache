@@ -168,6 +168,7 @@ void OMNI_consolidate(OmniCache *cache, OmniConsolidationFlags flags);
 
 void OMNI_mark_outdated(OmniCache *cache);
 void OMNI_mark_invalid(OmniCache *cache);
+void OMNI_clear(OmniCache *cache);
 
 void OMNI_sample_mark_outdated(OmniCache *cache, float_or_uint time);
 void OMNI_sample_mark_invalid(OmniCache *cache, float_or_uint time);

@@ -201,6 +201,8 @@ static void samples_free(OmniCache *cache)
 	cache->num_samples_alloc = 0;
 	cache->num_samples_array = 0;
 	cache->num_samples_tot = 0;
+
+	cache_set_flags(cache, OMNICACHE_STATUS_CURRENT);
 }
 
 
@@ -477,9 +479,6 @@ void OMNI_consolidate(OmniCache *cache, OmniConsolidationFlags flags)
 	    (!(cache->sflags & OMNICACHE_STATUS_CURRENT) && (flags & OMNI_CONSOL_FREE_OUTDATED)))
 	{
 		samples_free(cache);
-
-		cache_set_flags(cache, OMNICACHE_STATUS_CURRENT);
-
 		return;
 	}
 
@@ -512,6 +511,11 @@ void OMNI_mark_outdated(OmniCache *cache)
 void OMNI_mark_invalid(OmniCache *cache)
 {
 	cache_unset_flags(cache, OMNICACHE_STATUS_VALID);
+}
+
+void OMNI_clear(OmniCache *cache)
+{
+	samples_free(cache);
 }
 
 void OMNI_sample_mark_outdated(OmniCache *cache, float_or_uint time)
