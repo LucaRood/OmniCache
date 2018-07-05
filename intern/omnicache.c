@@ -157,6 +157,37 @@ static void sample_remove_root(OmniSample *sample)
 	sample_set_flags(sample, OMNI_SAMPLE_STATUS_SKIP);
 }
 
+static void sample_remove(OmniSample *sample)
+{
+	if (sample) {
+		if (IS_ROOT(sample)) {
+			sample_remove_root(sample);
+		}
+		else {
+			OmniSample *prev = sample_prev(sample);
+			prev->next = sample->next;
+
+			sample_remove_list(sample);
+		}
+	}
+}
+
+static void sample_remove_invalid(OmniSample *sample)
+{
+	if (sample && !(sample->sflags & OMNI_SAMPLE_STATUS_VALID)) {
+		sample_remove(sample);
+	}
+}
+
+static void sample_remove_outdated(OmniSample *sample)
+{
+	if (sample && (!(sample->sflags & OMNI_SAMPLE_STATUS_VALID) ||
+	               !(sample->sflags & OMNI_SAMPLE_STATUS_CURRENT)))
+	{
+		sample_remove(sample);
+	}
+}
+
 
 static void samples_free(OmniCache *cache)
 {
@@ -435,6 +466,42 @@ bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time)
 	}
 
 	return IS_CURRENT(sample_get_from_time(cache, time, false));
+}
+
+/* TODO: Consolidation should set the num_samples_array as to ignore trailing skipped samples (without children).
+ * (same applies to sample_clear_from and such) */
+void OMNI_consolidate(OmniCache *cache, OmniConsolidationFlags flags)
+{
+	/* TODO: Status flags should be generalized so that IS_VALID and IS_CURRENT can be used here. */
+	if ((!(cache->sflags & OMNICACHE_STATUS_VALID) && (flags & (OMNI_CONSOL_FREE_INVALID | OMNI_CONSOL_FREE_OUTDATED))) ||
+	    (!(cache->sflags & OMNICACHE_STATUS_CURRENT) && (flags & OMNI_CONSOL_FREE_OUTDATED)))
+	{
+		samples_free(cache);
+
+		cache_set_flags(cache, OMNICACHE_STATUS_CURRENT);
+
+		return;
+	}
+
+	/* Frees outdated and invalid samples. */
+	if (flags & OMNI_CONSOL_FREE_OUTDATED) {
+		samples_iterate(cache->samples, sample_remove_outdated, NULL, NULL);
+	}
+	/* Frees invalid samples. */
+	else if (flags & OMNI_CONSOL_FREE_INVALID) {
+		samples_iterate(cache->samples, sample_remove_invalid, NULL, NULL);
+	}
+
+	if (flags & OMNI_CONSOL_CONSOLIDATE) {
+		if (!(cache->sflags & OMNICACHE_STATUS_VALID)) {
+			samples_iterate(cache->samples, sample_mark_invalid, NULL, NULL);
+		}
+		else if (!(cache->sflags & OMNICACHE_STATUS_CURRENT)) {
+			samples_iterate(cache->samples, sample_mark_outdated, NULL, NULL);
+		}
+
+		cache_set_flags(cache, OMNICACHE_STATUS_CURRENT);
+	}
 }
 
 void OMNI_mark_outdated(OmniCache *cache)

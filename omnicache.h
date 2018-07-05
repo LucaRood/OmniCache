@@ -96,6 +96,12 @@ typedef enum OmniCacheFlags {
 	OMNICACHE_FLAG_INTERP_SUB	= (1 << 2), /* Interpolate only when reading between `time_step` increments. */
 } OmniCacheFlags;
 
+typedef enum OmniConsolidationFlags {
+	OMNI_CONSOL_CONSOLIDATE		= (1 << 0),
+	OMNI_CONSOL_FREE_INVALID	= (1 << 1),
+	OMNI_CONSOL_FREE_OUTDATED	= (1 << 2),
+} OmniConsolidationFlags;
+
 /*************
  * Templates *
  *************/
@@ -157,6 +163,8 @@ void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint
 
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time);
 bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time);
+
+void OMNI_consolidate(OmniCache *cache, OmniConsolidationFlags flags);
 
 void OMNI_mark_outdated(OmniCache *cache);
 void OMNI_mark_invalid(OmniCache *cache);
