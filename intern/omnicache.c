@@ -18,11 +18,11 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create)
 
 			if (stime.index >= size) {
 				size *= pow_u(2, (int)ceil(log2((double)(stime.index + 1) / (double)size)));
-
-				resize_sample_array(cache, size);
-
-				update_block_parents(cache);
 			}
+
+			resize_sample_array(cache, size);
+
+			update_block_parents(cache);
 		}
 		else {
 			return NULL;
