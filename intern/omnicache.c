@@ -239,7 +239,7 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 	assert(FU_LE(cache_temp->time_initial, cache_temp->time_final));
 
 	cache->tinitial = cache_temp->time_initial;
-	cache->tinitial = cache_temp->time_final;
+	cache->tfinal = cache_temp->time_final;
 	cache->tstep = cache_temp->time_step;
 
 	cache->ttype = cache_temp->time_type;
