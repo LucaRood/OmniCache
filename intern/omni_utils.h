@@ -10,9 +10,12 @@
 
 #define DATA_SIZE(dtype, dsize) (dtype == OMNI_DATA_GENERIC) ? dsize : OMNI_DATA_TYPE_SIZE[dtype];
 
-#define IS_VALID(sample) (sample && (sample->sflags & OMNI_SAMPLE_STATUS_VALID) && !(sample->sflags & OMNI_SAMPLE_STATUS_SKIP))
-#define IS_CURRENT(sample) (sample && (sample->sflags & OMNI_SAMPLE_STATUS_VALID) && (sample->sflags & OMNI_SAMPLE_STATUS_VALID) && !(sample->sflags & OMNI_SAMPLE_STATUS_SKIP))
-#define IS_ROOT(sample) FU_FL_EQ(sample->toffset, 0.0f)
+#define IS_VALID(object) (object && (object->status & OMNI_STATUS_VALID))
+#define IS_CURRENT(object) (IS_VALID(object) && (object->status & OMNI_STATUS_CURRENT))
+
+#define SAMPLE_IS_ROOT(sample) FU_FL_EQ(sample->toffset, 0.0f)
+#define SAMPLE_IS_VALID(sample) (IS_VALID(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP))
+#define SAMPLE_IS_CURRENT(sample) (IS_CURRENT(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP))
 
 typedef void (*iter_callback)(OmniSample *sample);
 

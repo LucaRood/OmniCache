@@ -10,21 +10,21 @@ void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 {
 	OmniSample *sample = block->parent;
 
-	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
-		flags |= OMNI_BLOCK_STATUS_VALID;
+	if (flags & OMNI_STATUS_CURRENT) {
+		flags |= OMNI_STATUS_VALID;
 
-		if (!(block->sflags & OMNI_BLOCK_STATUS_CURRENT)) {
+		if (!(block->status & OMNI_STATUS_CURRENT)) {
 			sample->num_blocks_outdated--;
 		}
 	}
 
-	if (flags & OMNI_BLOCK_STATUS_VALID) {
-		if (!(block->sflags & OMNI_BLOCK_STATUS_VALID)) {
+	if (flags & OMNI_STATUS_VALID) {
+		if (!(block->status & OMNI_STATUS_VALID)) {
 			sample->num_blocks_invalid--;
 		}
 	}
 
-	block->sflags |= flags;
+	block->status |= flags;
 }
 
 void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
@@ -32,105 +32,105 @@ void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 	OmniSample *sample = block->parent;
 	OmniSampleStatusFlags sample_flags = 0;
 
-	if (flags & OMNI_BLOCK_STATUS_VALID) {
-		flags |= OMNI_BLOCK_STATUS_CURRENT;
-		sample_flags |= OMNI_SAMPLE_STATUS_VALID;
+	if (flags & OMNI_STATUS_VALID) {
+		flags |= OMNI_STATUS_CURRENT;
+		sample_flags |= OMNI_STATUS_VALID;
 
-		if (block->sflags & OMNI_BLOCK_STATUS_VALID) {
+		if (block->status & OMNI_STATUS_VALID) {
 			sample->num_blocks_invalid++;
 		}
 	}
 
-	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
-		sample_flags |= OMNI_SAMPLE_STATUS_CURRENT;
+	if (flags & OMNI_STATUS_CURRENT) {
+		sample_flags |= OMNI_STATUS_CURRENT;
 
-		if (block->sflags & OMNI_BLOCK_STATUS_CURRENT) {
+		if (block->status & OMNI_STATUS_CURRENT) {
 			sample->num_blocks_outdated++;
 		}
 	}
 
-	block->sflags &= ~flags;
+	block->status &= ~flags;
 
 	sample_unset_flags(sample, sample_flags);
 }
 
 void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 {
-	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
-		flags |= OMNI_BLOCK_STATUS_VALID;
+	if (flags & OMNI_STATUS_CURRENT) {
+		flags |= OMNI_STATUS_VALID;
 	}
 
-	sample->meta.sflags |= flags;
+	sample->meta.status |= flags;
 }
 
 void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 {
 	OmniSampleStatusFlags sample_flags = 0;
 
-	if (flags & OMNI_BLOCK_STATUS_VALID) {
-		flags |= OMNI_BLOCK_STATUS_CURRENT;
-		sample_flags |= OMNI_SAMPLE_STATUS_VALID;
+	if (flags & OMNI_STATUS_VALID) {
+		flags |= OMNI_STATUS_CURRENT;
+		sample_flags |= OMNI_STATUS_VALID;
 	}
 
-	if (flags & OMNI_BLOCK_STATUS_CURRENT) {
-		sample_flags |= OMNI_SAMPLE_STATUS_CURRENT;
+	if (flags & OMNI_STATUS_CURRENT) {
+		sample_flags |= OMNI_STATUS_CURRENT;
 	}
 
-	sample->meta.sflags &= ~flags;
+	sample->meta.status &= ~flags;
 
 	sample_unset_flags(sample, sample_flags);
 }
 
 void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags)
 {
-	if (flags & OMNI_SAMPLE_STATUS_CURRENT) {
-		flags |= OMNI_SAMPLE_STATUS_VALID;
+	if (flags & OMNI_STATUS_CURRENT) {
+		flags |= OMNI_STATUS_VALID;
 	}
 
-	if (flags & (OMNI_SAMPLE_STATUS_VALID | OMNI_SAMPLE_STATUS_SKIP)) {
-		flags |= OMNI_SAMPLE_STATUS_INITED;
+	if (flags & (OMNI_STATUS_VALID | OMNI_SAMPLE_STATUS_SKIP)) {
+		flags |= OMNI_STATUS_INITED;
 	}
 
-	sample->sflags |= flags;
+	sample->status |= flags;
 }
 
 void sample_unset_flags(OmniSample *sample, OmniSampleStatusFlags flags)
 {
-	if (flags & OMNI_SAMPLE_STATUS_INITED) {
-		flags |= OMNI_SAMPLE_STATUS_VALID;
+	if (flags & OMNI_STATUS_INITED) {
+		flags |= OMNI_STATUS_VALID;
 	}
 
-	if (flags & OMNI_SAMPLE_STATUS_VALID) {
-		flags |= OMNI_SAMPLE_STATUS_CURRENT;
+	if (flags & OMNI_STATUS_VALID) {
+		flags |= OMNI_STATUS_CURRENT;
 	}
 
-	sample->sflags &= ~flags;
+	sample->status &= ~flags;
 }
 
 void cache_set_flags(OmniCache *cache, OmniCacheStatusFlags flags)
 {
-	if (flags & OMNICACHE_STATUS_CURRENT) {
-		flags |= OMNICACHE_STATUS_VALID;
+	if (flags & OMNI_STATUS_CURRENT) {
+		flags |= OMNI_STATUS_VALID;
 	}
 
-	if (flags & OMNICACHE_STATUS_VALID) {
-		flags |= OMNICACHE_STATUS_INITED;
+	if (flags & OMNI_STATUS_VALID) {
+		flags |= OMNI_STATUS_INITED;
 	}
 
-	cache->sflags |= flags;
+	cache->status |= flags;
 }
 
 void cache_unset_flags(OmniCache *cache, OmniCacheStatusFlags flags)
 {
-	if (flags & OMNICACHE_STATUS_INITED) {
-		flags |= OMNICACHE_STATUS_VALID;
+	if (flags & OMNI_STATUS_INITED) {
+		flags |= OMNI_STATUS_VALID;
 	}
 
-	if (flags & OMNICACHE_STATUS_VALID) {
-		flags |= OMNICACHE_STATUS_CURRENT;
+	if (flags & OMNI_STATUS_VALID) {
+		flags |= OMNI_STATUS_CURRENT;
 	}
 
-	cache->sflags &= ~flags;
+	cache->status &= ~flags;
 }
 
 /* Sample utils */
@@ -168,7 +168,7 @@ void samples_iterate(OmniSample *start, iter_callback list,
 
 		if (first) first(curr);
 
-		if (IS_ROOT(curr)) {
+		if (SAMPLE_IS_ROOT(curr)) {
 			if (root) root(curr);
 		}
 		else {
@@ -249,7 +249,7 @@ void init_sample_blocks(OmniSample *sample)
 
 			block->parent = sample;
 
-			block_set_flags(block, OMNI_BLOCK_STATUS_INITED);
+			block_set_flags(block, OMNI_STATUS_INITED);
 		}
 	}
 }

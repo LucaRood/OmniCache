@@ -31,6 +31,14 @@ typedef struct sample_time {
 	float_or_uint offset;
 } sample_time;
 
+/* Only bits 0-15 used here.
+ * Bits 16-31 are reserved for exclusive object flags. */
+typedef enum OmniStatusFlags {
+	OMNI_STATUS_INITED	= (1 << 0),
+	OMNI_STATUS_VALID	= (1 << 1),
+	OMNI_STATUS_CURRENT	= (1 << 2),
+} OmniStatusFlags;
+
 /* Block */
 
 typedef struct OmniBlockInfo {
@@ -49,23 +57,22 @@ typedef struct OmniBlockInfo {
 	OmniInterpCallback interp;
 } OmniBlockInfo;
 
+/* Bits 0-15 are used for OmniStatusFlags. */
 typedef enum OmniBlockStatusFlags {
-	OMNI_BLOCK_STATUS_INITED	= (1 << 0),
-	OMNI_BLOCK_STATUS_VALID		= (1 << 1),
-	OMNI_BLOCK_STATUS_CURRENT	= (1 << 2),
+	OMNI_BLOCK_STATUS_FLAGS	= (1 << 15), /* End of range reserved by OmniStatusFlags. */
 } OmniBlockStatusFlags;
 
 typedef struct OmniBlock {
 	struct OmniSample *parent;
 
-	OmniBlockStatusFlags sflags;
+	OmniBlockStatusFlags status;
 	uint dcount;
 
 	void *data;
 } OmniBlock;
 
 typedef struct OmniMetaBlock {
-	OmniBlockStatusFlags sflags;
+	OmniBlockStatusFlags status;
 
 	void *data;
 } OmniMetaBlock;
@@ -73,11 +80,10 @@ typedef struct OmniMetaBlock {
 
 /* Sample */
 
+/* Bits 0-15 are used for OmniStatusFlags. */
 typedef enum OmniSampleStatusFlags {
-	OMNI_SAMPLE_STATUS_INITED	= (1 << 0), /* Sample has been initialized. (just means it was processed and accounted for, data can still be garbage) */
-	OMNI_SAMPLE_STATUS_VALID	= (1 << 1), /* Data is valid (not garbage). */
-	OMNI_SAMPLE_STATUS_CURRENT	= (1 << 2), /* Data is up to date. */
-	OMNI_SAMPLE_STATUS_SKIP		= (1 << 3), /* Unused sample. */
+	OMNI_SAMPLE_STATUS_FLAGS	= (1 << 15), /* End of range reserved by OmniStatusFlags. */
+	OMNI_SAMPLE_STATUS_SKIP		= (1 << 16), /* Unused sample. */
 } OmniSampleStatusFlags;
 
 typedef struct OmniSample {
@@ -85,7 +91,7 @@ typedef struct OmniSample {
 	struct OmniCache *parent;
 	OmniMetaBlock meta;
 
-	OmniSampleStatusFlags sflags;
+	OmniSampleStatusFlags status;
 
 	uint tindex;
 	float_or_uint toffset;
@@ -99,11 +105,10 @@ typedef struct OmniSample {
 
 /* Cache */
 
+/* Bits 0-15 are used for OmniStatusFlags. */
 typedef enum OmniCacheStatusFlags {
-	OMNICACHE_STATUS_INITED		= (1 << 0),
-	OMNICACHE_STATUS_VALID		= (1 << 1), /* Set if all existing samples are valid. */
-	OMNICACHE_STATUS_CURRENT	= (1 << 2), /* Set if all existing samples are current. */
-	OMNICACHE_STATUS_COMPLETE	= (1 << 3), /* Set if the whole frame range is cached (valid). */
+	OMNI_CACHE_STATUS_FLAGS		= (1 << 15), /* End of range reserved by OmniStatusFlags. */
+	OMNI_CACHE_STATUS_COMPLETE	= (1 << 16), /* Set if the whole frame range is cached (valid). */
 } OmniCacheStatusFlags;
 
 typedef struct OmniCache {
@@ -113,7 +118,7 @@ typedef struct OmniCache {
 	float_or_uint tstep;
 
 	OmniCacheFlags flags;
-	OmniCacheStatusFlags sflags;
+	OmniCacheStatusFlags status;
 
 	uint num_blocks;
 	uint num_samples_alloc; /* Number of samples allocated in the array. */
