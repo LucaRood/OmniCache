@@ -32,6 +32,7 @@ sample_time gen_sample_time(OmniCache *cache, float_or_uint time);
 
 void samples_iterate(OmniSample *start, iter_callback list, iter_callback root, iter_callback first);
 OmniSample *sample_prev(OmniSample *sample);
+OmniSample *sample_last(OmniSample *sample);
 
 void resize_sample_array(OmniCache *cache, uint size);
 void init_sample_blocks(OmniSample *sample);

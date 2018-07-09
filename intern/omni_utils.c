@@ -212,6 +212,16 @@ OmniSample *sample_prev(OmniSample *sample)
 	return prev;
 }
 
+/* Find last sample at certain index */
+OmniSample *sample_last(OmniSample *sample)
+{
+	while (sample->next != NULL) {
+		sample = sample->next;
+	}
+
+	return sample;
+}
+
 void resize_sample_array(OmniCache *cache, uint size)
 {
 	cache->samples = realloc(cache->samples, sizeof(OmniSample) * size);

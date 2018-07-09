@@ -8,9 +8,21 @@
 
 #define MIN_SAMPLES 10
 
-static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create)
+static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
+                              OmniSample **prev, OmniSample **next)
 {
+#define ASS_PREV(cache, index) (index > 0 ? sample_last(&cache->samples[index - 1]) : NULL)
+#define ASS_NEXT(next, cache, nindex) (next ? next : (nindex < cache->num_samples_array ? &cache->samples[nindex] : NULL))
+
 	OmniSample *sample = NULL;
+
+	if (prev) {
+		*prev = NULL;
+	}
+
+	if (next) {
+		*next = NULL;
+	}
 
 	if (stime.index >= cache->num_samples_alloc) {
 		if (create) {
@@ -25,6 +37,10 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create)
 			update_block_parents(cache);
 		}
 		else {
+			if (prev) {
+				*prev = ASS_PREV(cache, cache->num_samples_array);
+			}
+
 			return NULL;
 		}
 	}
@@ -43,6 +59,10 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create)
 			cache->num_samples_array++;
 		}
 		else {
+			if (prev) {
+				*prev = ASS_PREV(cache, cache->num_samples_array);
+			}
+
 			return NULL;
 		}
 	}
@@ -51,31 +71,47 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create)
 	if (FU_FL_EQ(stime.offset, 0.0f)) {
 		/* Sample is at time zero (i.e. sits directly in the array). */
 		sample = &cache->samples[stime.index];
+
+		if (prev) {
+			*prev = ASS_PREV(cache, stime.index);
+		}
 	}
 	else {
-		OmniSample *prev = &cache->samples[stime.index];
-		OmniSample *next = prev->next;
+		OmniSample *p = &cache->samples[stime.index];
+		OmniSample *n = p->next;
 
-		while (next && FU_LT(next->toffset, stime.offset)) {
-			prev = next;
-			next = next->next;
+		while (n && FU_LT(n->toffset, stime.offset)) {
+			p = n;
+			n = n->next;
 		}
 
-		if (FU_EQ(next->toffset, stime.offset)) {
+		if (prev) {
+			*prev = p;
+		}
+
+		if (n && FU_EQ(n->toffset, stime.offset)) {
 			/* Sample already exists. */
-			sample = next;
+			sample = n;
 		}
 		else if (create) {
 			/* New sample should be created. */
 			sample = calloc(1, sizeof(OmniSample));
 			sample->toffset = stime.offset;
 
-			prev->next = sample;
-			sample->next = next;
+			p->next = sample;
+			sample->next = n;
 		}
 		else {
+			if (next) {
+				*next = ASS_NEXT(n, cache, stime.index + 1);
+			}
+
 			return NULL;
 		}
+	}
+
+	if (next) {
+		*next = ASS_NEXT(sample->next, cache, stime.index + 1);
 	}
 
 	if (create) {
@@ -89,14 +125,18 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create)
 	}
 
 	return sample;
+
+#undef ASS_PREV
+#undef ASS_NEXT
 }
 
 /* Utility to get sample without manually generating `sample_time`. */
-static OmniSample *sample_get_from_time(OmniCache *cache, float_or_uint time, bool create)
+static OmniSample *sample_get_from_time(OmniCache *cache, float_or_uint time, bool create,
+                                        OmniSample **prev, OmniSample **next)
 {
 	sample_time stime = gen_sample_time(cache, time);
 
-	return sample_get(cache, stime, create);
+	return sample_get(cache, stime, create, prev, next);
 }
 
 /* Free all blocks in a sample (also frees metadata) */
@@ -295,7 +335,7 @@ void OMNI_free(OmniCache *cache)
 
 bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, true);
+	OmniSample *sample = sample_get_from_time(cache, time, true, NULL, NULL);
 
 	for (uint i = 0; i < cache->num_blocks; i++) {
 		OmniBlockInfo *b_info = &cache->block_index[i];
@@ -368,7 +408,7 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 		result = OMNI_READ_OUTDATED;
 	}
 
-	sample = sample_get_from_time(cache, time, false);
+	sample = sample_get_from_time(cache, time, false, NULL, NULL);
 
 	/* TODO: Interpolation. */
 	if (!IS_VALID(sample)) {
@@ -457,7 +497,7 @@ bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time)
 		return false;
 	}
 
-	return IS_VALID(sample_get_from_time(cache, time, false));
+	return IS_VALID(sample_get_from_time(cache, time, false, NULL, NULL));
 }
 
 bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time)
@@ -467,7 +507,7 @@ bool OMNI_sample_is_current(OmniCache *cache, float_or_uint time)
 		return false;
 	}
 
-	return IS_CURRENT(sample_get_from_time(cache, time, false));
+	return IS_CURRENT(sample_get_from_time(cache, time, false, NULL, NULL));
 }
 
 /* TODO: Consolidation should set the num_samples_array as to ignore trailing skipped samples (without children).
@@ -520,7 +560,7 @@ void OMNI_clear(OmniCache *cache)
 
 void OMNI_sample_mark_outdated(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *sample = sample_get_from_time(cache, time, false, NULL, NULL);
 
 	if (sample) {
 		sample_mark_outdated(sample);
@@ -529,7 +569,7 @@ void OMNI_sample_mark_outdated(OmniCache *cache, float_or_uint time)
 
 void OMNI_sample_mark_invalid(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *sample = sample_get_from_time(cache, time, false, NULL, NULL);
 
 	if (sample) {
 		sample_mark_invalid(sample);
@@ -538,7 +578,7 @@ void OMNI_sample_mark_invalid(OmniCache *cache, float_or_uint time)
 
 void OMNI_sample_clear(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *sample = sample_get_from_time(cache, time, false, NULL, NULL);
 
 	if (sample) {
 		if (IS_ROOT(sample)) {
@@ -553,10 +593,12 @@ void OMNI_sample_clear(OmniCache *cache, float_or_uint time)
 	}
 }
 
-/* TODO: Should mark samples from time even if sample at exact time does not exist. */
 void OMNI_sample_mark_outdated_from(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *next = NULL;
+	OmniSample *sample = sample_get_from_time(cache, time, false, NULL, &next);
+
+	sample = sample ? sample : next;
 
 	if (sample) {
 		samples_iterate(sample, sample_mark_outdated, sample_mark_outdated, NULL);
@@ -565,7 +607,10 @@ void OMNI_sample_mark_outdated_from(OmniCache *cache, float_or_uint time)
 
 void OMNI_sample_mark_invalid_from(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *next = NULL;
+	OmniSample *sample = sample_get_from_time(cache, time, false, NULL, &next);
+
+	sample = sample ? sample : next;
 
 	if (sample) {
 		samples_iterate(sample, sample_mark_invalid, sample_mark_invalid, NULL);
@@ -574,7 +619,10 @@ void OMNI_sample_mark_invalid_from(OmniCache *cache, float_or_uint time)
 
 void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time)
 {
-	OmniSample *sample = sample_get_from_time(cache, time, false);
+	OmniSample *next = NULL;
+	OmniSample *sample = sample_get_from_time(cache, time, false, NULL, &next);
+
+	sample = sample ? sample : next;
 
 	if (sample) {
 		samples_iterate(sample,
