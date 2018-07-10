@@ -137,9 +137,14 @@ void cache_unset_flags(OmniCache *cache, OmniCacheStatusFlags flags)
 
 sample_time gen_sample_time(OmniCache *cache, float_or_uint time)
 {
-	sample_time result;
+	sample_time result = {};
 
-	assert(cache->ttype == time.isf);
+	assert(TTYPE_FLOAT(cache->ttype) == time.isf);
+
+	if (FU_LT(time, cache->tinitial) || FU_GT(time, cache->tfinal)) {
+		result.ttype = OMNI_TIME_INVALID;
+		return result;
+	}
 
 	time = fu_sub(time, cache->tinitial);
 

@@ -23,8 +23,8 @@ typedef enum OmniReadResult {
 } OmniReadResult;
 
 typedef enum OmniTimeType {
-	OMNI_TIME_INT		= 0, /* Discrete integer time. */
-	OMNI_TIME_FLOAT		= 1, /* Continuous floating point time. */
+	OMNI_TIME_INT		= 1, /* Discrete integer time. */
+	OMNI_TIME_FLOAT		= 2, /* Continuous floating point time. */
 } OmniTimeType;
 
 typedef enum OmniDataType {

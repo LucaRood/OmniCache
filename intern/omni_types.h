@@ -8,6 +8,8 @@
 #include "types.h"
 #include "omnicache.h"
 
+/* enum OmniTimeType */
+#define OMNI_TIME_INVALID 0
 
 /* Size of the data types in `omnicache.h` (keep in sync). */
 static const uint OMNI_DATA_TYPE_SIZE[] = {

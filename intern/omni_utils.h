@@ -17,6 +17,10 @@
 #define SAMPLE_IS_VALID(sample) (IS_VALID(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP))
 #define SAMPLE_IS_CURRENT(sample) (IS_CURRENT(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP))
 
+#define TTYPE_VALID(ttype) (ttype != OMNI_TIME_INVALID)
+#define TTYPE_FLOAT(ttype) (ttype == OMNI_TIME_FLOAT)
+#define TTYPE_INT(ttype) (ttype == OMNI_TIME_INT)
+
 typedef void (*iter_callback)(OmniSample *sample);
 
 void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags);

@@ -24,6 +24,10 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 		*next = NULL;
 	}
 
+	if (!TTYPE_VALID(stime.ttype)) {
+		return NULL;
+	}
+
 	if (stime.index >= cache->num_samples_alloc) {
 		if (create) {
 			uint size = MAX(cache->num_samples_alloc, MIN_SAMPLES);
@@ -496,9 +500,9 @@ void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint 
 	bool changed = false;
 
 	assert(FU_FL_GT(time_step, 0.0f));
-	assert(cache->ttype == time_initial.isf);
-	assert(cache->ttype == time_final.isf);
-	assert(cache->ttype == time_step.isf);
+	assert(TTYPE_FLOAT(cache->ttype) == time_initial.isf);
+	assert(TTYPE_FLOAT(cache->ttype) == time_final.isf);
+	assert(TTYPE_FLOAT(cache->ttype) == time_step.isf);
 	assert(FU_LE(time_initial, time_final));
 
 	if (!FU_EQ(time_initial, cache->tinitial)) {
