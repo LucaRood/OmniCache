@@ -324,6 +324,54 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 	return cache;
 }
 
+OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data)
+{
+	OmniCache *cache = dupalloc(source, sizeof(OmniCache));
+
+	if (cache->num_blocks) {
+		cache->block_index = dupalloc(cache->block_index, sizeof(OmniBlockInfo) * cache->num_blocks);
+
+		for (uint i = 0; i < cache->num_blocks; i++) {
+			cache->block_index[i].parent = cache;
+		}
+	}
+
+	if (copy_data) {
+		cache->samples = dupalloc(cache->samples, sizeof(OmniSample) * cache->num_samples_alloc);
+
+		for (uint i = 0; i < cache->num_samples_array; i++) {
+			OmniSample *sample = &cache->samples[i];
+
+			do {
+				sample->parent = cache;
+
+				sample->blocks = dupalloc(sample->blocks, sizeof(OmniBlock) * cache->num_blocks);
+
+				for (uint j = 0; j < cache->num_blocks; j++) {
+					OmniBlock *block = &sample->blocks[j];
+
+					block->parent = sample;
+					block->data = dupalloc(block->data, cache->block_index[j].dsize * block->dcount);
+				}
+
+				sample->next = dupalloc(sample->next, sizeof(OmniSample));
+
+				sample = sample->next;
+			} while (sample);
+		}
+	}
+	else {
+		cache_set_flags(cache, OMNI_STATUS_CURRENT);
+		cache_unset_flags(cache, OMNI_CACHE_STATUS_COMPLETE);
+
+		cache->num_samples_alloc = 0;
+		cache->num_samples_array = 0;
+		cache->num_samples_tot = 0;
+
+		cache->samples = NULL;
+	}
+}
+
 void OMNI_free(OmniCache *cache)
 {
 	samples_free(cache);
