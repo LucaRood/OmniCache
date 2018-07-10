@@ -488,6 +488,16 @@ void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint
 	}
 }
 
+bool OMNI_is_valid(OmniCache *cache)
+{
+	return IS_VALID(cache);
+}
+
+bool OMNI_is_current(OmniCache *cache)
+{
+	return IS_CURRENT(cache);
+}
+
 bool OMNI_sample_is_valid(OmniCache *cache, float_or_uint time)
 {
 	if (!IS_VALID(cache)) {
