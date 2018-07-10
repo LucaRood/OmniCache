@@ -38,4 +38,6 @@ uint fu_uint(float_or_uint fu);
 
 uint pow_u(uint base, uint exp);
 
+void *dupalloc(const void *source, const size_t size);
+
 #endif /* __OMNI_UTILS_H__ */

@@ -118,3 +118,15 @@ uint pow_u(uint base, uint exp)
 
 	return result;
 }
+
+void *dupalloc(const void *source, const size_t size)
+{
+	if (!source) {
+		return NULL;
+	}
+
+	void *target = malloc(size);
+	memcpy(target, source, size);
+
+	return target;
+}
