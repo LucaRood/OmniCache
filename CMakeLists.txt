@@ -17,6 +17,12 @@ set(SRC
 
 include_directories(${INC})
 
+if (MSVC)
+	set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} /W4")
+else()
+	set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall")
+endif()
+
 add_library(omnicache SHARED ${SRC})
 
 set_target_properties(omnicache PROPERTIES PUBLIC_HEADER "omnicache.h;intern/types.h")
