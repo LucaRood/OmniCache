@@ -413,6 +413,10 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 		return OMNI_READ_INVALID;
 	}
 
+	if (!IS_CURRENT(sample)) {
+		result = OMNI_READ_OUTDATED;
+	}
+
 	for (uint i = 0; i < cache->num_blocks; i++) {
 		OmniBlockInfo *b_info = &cache->block_index[i];
 		OmniBlock *block = &sample->blocks[i];
