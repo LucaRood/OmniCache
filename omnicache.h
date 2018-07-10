@@ -15,6 +15,12 @@
  * Enums *
  *********/
 
+typedef enum OmniWriteResult {
+	OMNI_WRITE_INVALID	= 0,
+	OMNI_WRITE_FAILED	= 1,
+	OMNI_WRITE_SUCCESS	= 2,
+} OmniWriteResult;
+
 typedef enum OmniReadResult {
 	OMNI_READ_INVALID	= 0,
 	OMNI_READ_OUTDATED	= 1,
@@ -156,7 +162,7 @@ OmniCache *OMNI_new(const OmniCacheTemplate *c_temp, const OmniBlockTemplateArra
 OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data);
 void OMNI_free(OmniCache *cache);
 
-bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
+OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data);
 
 void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint time_final, float_or_uint time_step);

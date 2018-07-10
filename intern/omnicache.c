@@ -384,9 +384,13 @@ void OMNI_free(OmniCache *cache)
 	free(cache);
 }
 
-bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
+OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, true, NULL, NULL);
+
+	if (!sample) {
+		return OMNI_WRITE_INVALID;
+	}
 
 	for (uint i = 0; i < cache->num_blocks; i++) {
 		OmniBlockInfo *b_info = &cache->block_index[i];
@@ -417,7 +421,7 @@ bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 			block_unset_flags(block, OMNI_STATUS_VALID);
 			sample_unset_flags(sample, OMNI_STATUS_VALID);
 
-			return false;
+			return OMNI_WRITE_FAILED;
 		}
 
 		/* Ensure the user did not reallocate the data pointer. */
@@ -436,13 +440,13 @@ bool OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 			meta_unset_flags(sample, OMNI_STATUS_VALID);
 			sample_unset_flags(sample, OMNI_STATUS_VALID);
 
-			return false;
+			return OMNI_WRITE_FAILED;
 		}
 	}
 
 	sample_set_flags(sample, OMNI_STATUS_CURRENT);
 
-	return true;
+	return OMNI_WRITE_SUCCESS;
 }
 
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data)
