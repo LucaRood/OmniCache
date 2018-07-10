@@ -374,6 +374,8 @@ OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data)
 
 		cache->samples = NULL;
 	}
+
+	return cache;
 }
 
 void OMNI_free(OmniCache *cache)
