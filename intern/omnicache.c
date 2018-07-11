@@ -316,26 +316,7 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 		cache->block_index = calloc(cache->num_blocks, sizeof(OmniBlockInfo));
 
 		for (uint i = 0; i < cache->num_blocks; i++) {
-			OmniBlockInfo *b_info = &cache->block_index[i];
-			const OmniBlockTemplate *b_temp = &block_temp[i];
-
-			b_info->parent = cache;
-
-			b_info->dtype = b_temp->data_type;
-			b_info->flags = b_temp->flags;
-
-			strncpy(b_info->name, b_temp->name, MAX_NAME);
-
-			b_info->dsize = DATA_SIZE(b_temp->data_type, b_temp->data_size);
-
-			assert(b_temp->count);
-			assert(b_temp->read);
-			assert(b_temp->write);
-
-			b_info->count = b_temp->count;
-			b_info->read = b_temp->read;
-			b_info->write = b_temp->write;
-			b_info->interp = b_temp->interp;
+			block_info_init(cache, &block_temp[i], i);
 		}
 	}
 
@@ -400,6 +381,16 @@ void OMNI_free(OmniCache *cache)
 
 	free(cache->block_index);
 	free(cache);
+}
+
+void OMNI_block_add(OmniCache *cache, const OmniBlockTemplate *b_temp)
+{
+	samples_free(cache);
+
+	cache->num_blocks++;
+	cache->block_index = realloc(cache->block_index, sizeof(OmniBlockInfo) * cache->num_blocks);
+
+	block_info_init(cache, b_temp, cache->num_blocks - 1);
 }
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)

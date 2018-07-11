@@ -162,6 +162,8 @@ OmniCache *OMNI_new(const OmniCacheTemplate *c_temp, const OmniBlockTemplateArra
 OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data);
 void OMNI_free(OmniCache *cache);
 
+void OMNI_block_add(OmniCache *cache, const OmniBlockTemplate *b_temp);
+
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data);
 

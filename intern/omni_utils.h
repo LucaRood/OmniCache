@@ -45,6 +45,7 @@ OmniSample *sample_last(OmniSample *sample);
 void resize_sample_array(OmniCache *cache, uint size);
 void init_sample_blocks(OmniSample *sample);
 
+void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const uint index);
 void update_block_parents(OmniCache *cache);
 
 #endif /* __OMNI_OMNI_UTILS_H__ */

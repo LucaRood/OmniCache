@@ -244,6 +244,29 @@ void init_sample_blocks(OmniSample *sample)
 	}
 }
 
+void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const uint index)
+{
+	OmniBlockInfo *b_info = &cache->block_index[index];
+
+	b_info->parent = cache;
+
+	b_info->dtype = b_temp->data_type;
+	b_info->flags = b_temp->flags;
+
+	strncpy(b_info->name, b_temp->name, MAX_NAME);
+
+	b_info->dsize = DATA_SIZE(b_temp->data_type, b_temp->data_size);
+
+	assert(b_temp->count);
+	assert(b_temp->read);
+	assert(b_temp->write);
+
+	b_info->count = b_temp->count;
+	b_info->read = b_temp->read;
+	b_info->write = b_temp->write;
+	b_info->interp = b_temp->interp;
+}
+
 void update_block_parents(OmniCache *cache)
 {
 	for (uint i = 0; i < cache->num_samples_array; i++) {
