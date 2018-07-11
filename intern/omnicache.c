@@ -477,7 +477,7 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 	}
 
 	if (!IS_CURRENT(cache)) {
-		result = OMNI_READ_OUTDATED;
+		result |= OMNI_READ_OUTDATED;
 	}
 
 	sample = sample_get_from_time(cache, time, false, NULL, NULL);
@@ -488,7 +488,7 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 	}
 
 	if (!IS_CURRENT(sample)) {
-		result = OMNI_READ_OUTDATED;
+		result |= OMNI_READ_OUTDATED;
 	}
 
 	for (uint i = 0; i < cache->num_blocks; i++) {
@@ -510,7 +510,7 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 		}
 
 		if (!IS_CURRENT(block)) {
-			result = OMNI_READ_OUTDATED;
+			result |= OMNI_READ_OUTDATED;
 		}
 	}
 

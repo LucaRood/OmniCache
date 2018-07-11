@@ -15,19 +15,6 @@
  * Enums *
  *********/
 
-typedef enum OmniWriteResult {
-	OMNI_WRITE_INVALID	= 0,
-	OMNI_WRITE_FAILED	= 1,
-	OMNI_WRITE_SUCCESS	= 2,
-} OmniWriteResult;
-
-typedef enum OmniReadResult {
-	OMNI_READ_INVALID	= 0,
-	OMNI_READ_OUTDATED	= 1,
-	OMNI_READ_INTERP	= 2,
-	OMNI_READ_EXACT		= 3,
-} OmniReadResult;
-
 typedef enum OmniTimeType {
 	OMNI_TIME_INT		= 1, /* Discrete integer time. */
 	OMNI_TIME_FLOAT		= 2, /* Continuous floating point time. */
@@ -90,6 +77,19 @@ typedef bool (*OmnicMetaGenCallback)(void *user_data, void *result);
 /*********
  * Flags *
  *********/
+
+typedef enum OmniWriteResult {
+	OMNI_WRITE_SUCCESS	= 0,
+	OMNI_WRITE_INVALID	= (1 << 1), /* Leaving bit 0 clear in case it is decided to use it for success. */
+	OMNI_WRITE_FAILED	= (1 << 2),
+} OmniWriteResult;
+
+typedef enum OmniReadResult {
+	OMNI_READ_EXACT		= 0,
+	OMNI_READ_INTERP	= (1 << 1), /* Leaving bit 0 clear in case it is decided to use it for exact. */
+	OMNI_READ_OUTDATED	= (1 << 2),
+	OMNI_READ_INVALID	= (1 << 3),
+} OmniReadResult;
 
 typedef enum OmniBlockFlags {
 	OMNI_BLOCK_FLAG_CONTINUOUS	= (1 << 0), /* Continuous data that can be interpolated. */
