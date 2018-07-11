@@ -30,11 +30,9 @@ void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 {
 	OmniSample *sample = block->parent;
-	OmniSampleStatusFlags sample_flags = 0;
 
 	if (flags & OMNI_STATUS_VALID) {
 		flags |= OMNI_STATUS_CURRENT;
-		sample_flags |= OMNI_STATUS_VALID;
 
 		if (block->status & OMNI_STATUS_VALID) {
 			sample->num_blocks_invalid++;
@@ -42,16 +40,12 @@ void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags)
 	}
 
 	if (flags & OMNI_STATUS_CURRENT) {
-		sample_flags |= OMNI_STATUS_CURRENT;
-
 		if (block->status & OMNI_STATUS_CURRENT) {
 			sample->num_blocks_outdated++;
 		}
 	}
 
 	block->status &= ~flags;
-
-	sample_unset_flags(sample, sample_flags);
 }
 
 void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags)
@@ -65,20 +59,11 @@ void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 
 void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags)
 {
-	OmniSampleStatusFlags sample_flags = 0;
-
 	if (flags & OMNI_STATUS_VALID) {
 		flags |= OMNI_STATUS_CURRENT;
-		sample_flags |= OMNI_STATUS_VALID;
-	}
-
-	if (flags & OMNI_STATUS_CURRENT) {
-		sample_flags |= OMNI_STATUS_CURRENT;
 	}
 
 	sample->meta.status &= ~flags;
-
-	sample_unset_flags(sample, sample_flags);
 }
 
 void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags)

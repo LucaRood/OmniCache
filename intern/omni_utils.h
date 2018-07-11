@@ -14,8 +14,8 @@
 #define IS_CURRENT(object) (IS_VALID(object) && (object->status & OMNI_STATUS_CURRENT))
 
 #define SAMPLE_IS_ROOT(sample) FU_FL_EQ(sample->toffset, 0.0f)
-#define SAMPLE_IS_VALID(sample) (IS_VALID(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP))
-#define SAMPLE_IS_CURRENT(sample) (IS_CURRENT(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP))
+#define SAMPLE_IS_VALID(sample) (IS_VALID(sample) && !(sample->status & OMNI_SAMPLE_STATUS_SKIP) && (sample->num_blocks_invalid == 0))
+#define SAMPLE_IS_CURRENT(sample) (SAMPLE_IS_VALID(sample) && (sample->status & OMNI_STATUS_CURRENT) && (sample->num_blocks_outdated == 0))
 
 #define TTYPE_VALID(ttype) (ttype != OMNI_TIME_INVALID)
 #define TTYPE_FLOAT(ttype) (ttype == OMNI_TIME_FLOAT)
