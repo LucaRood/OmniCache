@@ -57,7 +57,7 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 
 				samp->parent = cache;
 				samp->tindex = cache->num_samples_array;
-				sample_set_flags(samp, OMNI_SAMPLE_STATUS_SKIP);
+				sample_set_status(samp, OMNI_SAMPLE_STATUS_SKIP);
 			}
 
 			cache->num_samples_array++;
@@ -124,8 +124,8 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 
 		init_sample_blocks(sample);
 
-		sample_set_flags(sample, OMNI_STATUS_INITED);
-		sample_unset_flags(sample, OMNI_SAMPLE_STATUS_SKIP);
+		sample_set_status(sample, OMNI_STATUS_INITED);
+		sample_unset_status(sample, OMNI_SAMPLE_STATUS_SKIP);
 	}
 
 	return sample;
@@ -162,20 +162,20 @@ static void blocks_free(OmniSample *sample)
 		sample->meta.data = NULL;
 	}
 
-	meta_unset_flags(sample, OMNI_STATUS_VALID);
-	sample_unset_flags(sample, OMNI_STATUS_VALID);
+	meta_unset_status(sample, OMNI_STATUS_VALID);
+	sample_unset_status(sample, OMNI_STATUS_VALID);
 }
 
 /* Sample iterator helpers */
 
 static void sample_mark_outdated(OmniSample *sample)
 {
-	sample_unset_flags(sample, OMNI_STATUS_CURRENT);
+	sample_unset_status(sample, OMNI_STATUS_CURRENT);
 }
 
 static void sample_mark_invalid(OmniSample *sample)
 {
-	sample_unset_flags(sample, OMNI_STATUS_VALID);
+	sample_unset_status(sample, OMNI_STATUS_VALID);
 }
 
 static void sample_clear_ref(OmniSample *sample)
@@ -198,7 +198,7 @@ static void sample_remove_root(OmniSample *sample)
 {
 	blocks_free(sample);
 
-	sample_set_flags(sample, OMNI_SAMPLE_STATUS_SKIP);
+	sample_set_status(sample, OMNI_SAMPLE_STATUS_SKIP);
 }
 
 static void sample_remove(OmniSample *sample)
@@ -245,7 +245,7 @@ static void samples_free(OmniCache *cache)
 	cache->num_samples_array = 0;
 	cache->num_samples_tot = 0;
 
-	cache_set_flags(cache, OMNI_STATUS_CURRENT);
+	cache_set_status(cache, OMNI_STATUS_CURRENT);
 }
 
 
@@ -323,7 +323,7 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 		}
 	}
 
-	cache_set_flags(cache, OMNI_STATUS_CURRENT);
+	cache_set_status(cache, OMNI_STATUS_CURRENT);
 
 	return cache;
 }
@@ -365,8 +365,8 @@ OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data)
 		}
 	}
 	else {
-		cache_set_flags(cache, OMNI_STATUS_CURRENT);
-		cache_unset_flags(cache, OMNI_CACHE_STATUS_COMPLETE);
+		cache_set_status(cache, OMNI_STATUS_CURRENT);
+		cache_unset_status(cache, OMNI_CACHE_STATUS_COMPLETE);
 
 		cache->num_samples_alloc = 0;
 		cache->num_samples_array = 0;
@@ -417,11 +417,11 @@ OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *da
 		omni_data.data = block->data;
 
 		if (b_info->write(&omni_data, data)) {
-			block_set_flags(block, OMNI_STATUS_CURRENT);
+			block_set_status(block, OMNI_STATUS_CURRENT);
 		}
 		else {
-			block_unset_flags(block, OMNI_STATUS_VALID);
-			sample_unset_flags(sample, OMNI_STATUS_VALID);
+			block_unset_status(block, OMNI_STATUS_VALID);
+			sample_unset_status(sample, OMNI_STATUS_VALID);
 
 			return OMNI_WRITE_FAILED;
 		}
@@ -436,17 +436,17 @@ OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *da
 		}
 
 		if (cache->meta_gen(data, sample->meta.data)) {
-			meta_set_flags(sample, OMNI_STATUS_CURRENT);
+			meta_set_status(sample, OMNI_STATUS_CURRENT);
 		}
 		else {
-			meta_unset_flags(sample, OMNI_STATUS_VALID);
-			sample_unset_flags(sample, OMNI_STATUS_VALID);
+			meta_unset_status(sample, OMNI_STATUS_VALID);
+			sample_unset_status(sample, OMNI_STATUS_VALID);
 
 			return OMNI_WRITE_FAILED;
 		}
 	}
 
-	sample_set_flags(sample, OMNI_STATUS_CURRENT);
+	sample_set_status(sample, OMNI_STATUS_CURRENT);
 
 	return OMNI_WRITE_SUCCESS;
 }
@@ -606,18 +606,18 @@ void OMNI_consolidate(OmniCache *cache, OmniConsolidationFlags flags)
 			samples_iterate(cache->samples, sample_mark_outdated, NULL, NULL);
 		}
 
-		cache_set_flags(cache, OMNI_STATUS_CURRENT);
+		cache_set_status(cache, OMNI_STATUS_CURRENT);
 	}
 }
 
 void OMNI_mark_outdated(OmniCache *cache)
 {
-	cache_unset_flags(cache, OMNI_STATUS_CURRENT);
+	cache_unset_status(cache, OMNI_STATUS_CURRENT);
 }
 
 void OMNI_mark_invalid(OmniCache *cache)
 {
-	cache_unset_flags(cache, OMNI_STATUS_VALID);
+	cache_unset_status(cache, OMNI_STATUS_VALID);
 }
 
 void OMNI_clear(OmniCache *cache)

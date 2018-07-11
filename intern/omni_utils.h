@@ -23,17 +23,17 @@
 
 typedef void (*iter_callback)(OmniSample *sample);
 
-void block_set_flags(OmniBlock *block, OmniBlockStatusFlags flags);
-void block_unset_flags(OmniBlock *block, OmniBlockStatusFlags flags);
+void block_set_status(OmniBlock *block, OmniBlockStatusFlags status);
+void block_unset_status(OmniBlock *block, OmniBlockStatusFlags status);
 
-void meta_set_flags(OmniSample *sample, OmniBlockStatusFlags flags);
-void meta_unset_flags(OmniSample *sample, OmniBlockStatusFlags flags);
+void meta_set_status(OmniSample *sample, OmniBlockStatusFlags status);
+void meta_unset_status(OmniSample *sample, OmniBlockStatusFlags status);
 
-void sample_set_flags(OmniSample *sample, OmniSampleStatusFlags flags);
-void sample_unset_flags(OmniSample *sample, OmniSampleStatusFlags flags);
+void sample_set_status(OmniSample *sample, OmniSampleStatusFlags status);
+void sample_unset_status(OmniSample *sample, OmniSampleStatusFlags status);
 
-void cache_set_flags(OmniCache *cache, OmniCacheStatusFlags flags);
-void cache_unset_flags(OmniCache *cache, OmniCacheStatusFlags flags);
+void cache_set_status(OmniCache *cache, OmniCacheStatusFlags status);
+void cache_unset_status(OmniCache *cache, OmniCacheStatusFlags status);
 
 sample_time gen_sample_time(OmniCache *cache, float_or_uint time);
 
