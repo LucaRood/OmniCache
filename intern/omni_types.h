@@ -125,7 +125,7 @@ typedef struct OmniCache {
 	uint num_blocks;
 	uint num_samples_alloc; /* Number of samples allocated in the array. */
 	uint num_samples_array; /* Number of samples initialized in the array. */
-	uint num_samples_tot; /* Total number of samples initialized (including sub-samples) */
+	uint num_samples_tot; /* Total number of non-skipped initialized samples (including sub-samples) */
 
 	uint msize;
 

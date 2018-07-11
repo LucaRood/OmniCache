@@ -133,6 +133,8 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 
 			sample_set_status(sample, OMNI_STATUS_INITED);
 			sample_unset_status(sample, OMNI_SAMPLE_STATUS_SKIP);
+
+			cache->num_samples_tot++;
 		}
 	}
 
@@ -199,6 +201,8 @@ static void sample_remove_list(OmniSample *sample)
 {
 	blocks_free(sample);
 
+	sample->parent->num_samples_tot--;
+
 	free(sample);
 }
 
@@ -206,7 +210,11 @@ static void sample_remove_root(OmniSample *sample)
 {
 	blocks_free(sample);
 
-	sample_set_status(sample, OMNI_SAMPLE_STATUS_SKIP);
+	if (!SAMPLE_IS_SKIPPED(sample)) {
+		sample->parent->num_samples_tot--;
+
+		sample_set_status(sample, OMNI_SAMPLE_STATUS_SKIP);
+	}
 }
 
 static void sample_remove(OmniSample *sample)
@@ -701,8 +709,8 @@ void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time)
 
 	if (sample) {
 		samples_iterate(sample,
-		                          sample_remove_list,
-		                          sample_remove_root,
-		                          sample_clear_ref);
+		                sample_remove_list,
+		                sample_remove_root,
+		                sample_clear_ref);
 	}
 }
