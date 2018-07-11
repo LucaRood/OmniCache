@@ -52,15 +52,13 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 	/* Increment array sample count until required sample, initializing all samples along the way. */
 	if (cache->num_samples_array <= stime.index) {
 		if (create) {
-			for (; cache->num_samples_array < stime.index; cache->num_samples_array++) {
+			for (; cache->num_samples_array <= stime.index; cache->num_samples_array++) {
 				OmniSample *samp = &cache->samples[cache->num_samples_array];
 
 				samp->parent = cache;
 				samp->tindex = cache->num_samples_array;
 				sample_set_status(samp, OMNI_SAMPLE_STATUS_SKIP);
 			}
-
-			cache->num_samples_array++;
 		}
 		else {
 			if (prev) {
@@ -72,60 +70,70 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 	}
 
 	/* Find or add sample. */
-	if (FU_FL_EQ(stime.offset, 0.0f)) {
-		/* Sample is at time zero (i.e. sits directly in the array). */
-		sample = &cache->samples[stime.index];
+	{
+		bool new = false;
 
-		if (prev) {
-			*prev = ASS_PREV(cache, stime.index);
-		}
-	}
-	else {
-		OmniSample *p = &cache->samples[stime.index];
-		OmniSample *n = p->next;
+		if (FU_FL_EQ(stime.offset, 0.0f)) {
+			/* Sample is at time zero (i.e. sits directly in the array). */
+			sample = &cache->samples[stime.index];
 
-		while (n && FU_LT(n->toffset, stime.offset)) {
-			p = n;
-			n = n->next;
-		}
-
-		if (prev) {
-			*prev = p;
-		}
-
-		if (n && FU_EQ(n->toffset, stime.offset)) {
-			/* Sample already exists. */
-			sample = n;
-		}
-		else if (create) {
-			/* New sample should be created. */
-			sample = calloc(1, sizeof(OmniSample));
-			sample->toffset = stime.offset;
-
-			p->next = sample;
-			sample->next = n;
-		}
-		else {
-			if (next) {
-				*next = ASS_NEXT(n, cache, stime.index + 1);
+			if (SAMPLE_IS_SKIPPED(sample)) {
+				new = true;
 			}
 
-			return NULL;
+			if (prev) {
+				*prev = ASS_PREV(cache, stime.index);
+			}
 		}
-	}
+		else {
+			OmniSample *p = &cache->samples[stime.index];
+			OmniSample *n = p->next;
 
-	if (next) {
-		*next = ASS_NEXT(sample->next, cache, stime.index + 1);
-	}
+			while (n && FU_LT(n->toffset, stime.offset)) {
+				p = n;
+				n = n->next;
+			}
 
-	if (create) {
-		sample->parent = cache;
-		sample->tindex = stime.index;
+			if (prev) {
+				*prev = p;
+			}
 
-		init_sample_blocks(sample);
+			if (n && FU_EQ(n->toffset, stime.offset)) {
+				/* Sample already exists. */
+				sample = n;
+			}
+			else if (create) {
+				/* New sample should be created. */
+				sample = calloc(1, sizeof(OmniSample));
+				sample->toffset = stime.offset;
 
-		sample_set_status(sample, OMNI_STATUS_INITED);
-		sample_unset_status(sample, OMNI_SAMPLE_STATUS_SKIP);
+				p->next = sample;
+				sample->next = n;
+
+				new = true;
+			}
+			else {
+				if (next) {
+					*next = ASS_NEXT(n, cache, stime.index + 1);
+				}
+
+				return NULL;
+			}
+		}
+
+		if (next) {
+			*next = ASS_NEXT(sample->next, cache, stime.index + 1);
+		}
+
+		if (new) {
+			sample->parent = cache;
+			sample->tindex = stime.index;
+
+			init_sample_blocks(sample);
+
+			sample_set_status(sample, OMNI_STATUS_INITED);
+			sample_unset_status(sample, OMNI_SAMPLE_STATUS_SKIP);
+		}
 	}
 
 	return sample;
