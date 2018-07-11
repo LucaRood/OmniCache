@@ -292,9 +292,9 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 	OmniCache *cache = calloc(1, sizeof(OmniCache));
 
 	assert(FU_FL_GT(cache_temp->time_step, 0.0f));
-	assert(cache_temp->time_type == cache_temp->time_initial.isf);
-	assert(cache_temp->time_type == cache_temp->time_final.isf);
-	assert(cache_temp->time_type == cache_temp->time_step.isf);
+	assert(TTYPE_FLOAT(cache_temp->time_type) == cache_temp->time_initial.isf);
+	assert(TTYPE_FLOAT(cache_temp->time_type) == cache_temp->time_final.isf);
+	assert(TTYPE_FLOAT(cache_temp->time_type) == cache_temp->time_step.isf);
 	assert(FU_LE(cache_temp->time_initial, cache_temp->time_final));
 
 	cache->tinitial = cache_temp->time_initial;
