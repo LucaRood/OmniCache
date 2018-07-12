@@ -12,6 +12,12 @@
 
 #include "types.h"
 
+#ifdef __GNUC__
+#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#else
+#  define UNUSED(x) UNUSED_ ## x
+#endif
+
 #define MIN(val1, val2) (val1 < val2 ? val1 : val2)
 #define MAX(val1, val2) (val1 > val2 ? val1 : val2)
 
