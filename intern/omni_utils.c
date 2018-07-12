@@ -122,7 +122,7 @@ void cache_unset_status(OmniCache *cache, OmniCacheStatusFlags status)
 
 sample_time gen_sample_time(OmniCache *cache, float_or_uint time)
 {
-	sample_time result = {};
+	sample_time result = {0};
 
 	assert(TTYPE_FLOAT(cache->ttype) == time.isf);
 

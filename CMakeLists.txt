@@ -20,7 +20,7 @@ include_directories(${INC})
 if (MSVC)
 	set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} /W4")
 else()
-	set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall")
+	set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -Wstrict-prototypes -Wmissing-prototypes -Wlogical-op -Winit-self -Wshadow -Wcast-qual")
 endif()
 
 add_library(omnicache SHARED ${SRC})
