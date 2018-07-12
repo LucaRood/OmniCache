@@ -247,7 +247,6 @@ static void sample_remove_outdated(OmniSample *sample)
 	}
 }
 
-
 static void samples_free(OmniCache *cache)
 {
 	if (cache->samples) {
@@ -705,3 +704,77 @@ void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time)
 		                sample_clear_ref);
 	}
 }
+
+#define INCREMENT_SERIAL(size) s = (OmniSerial *)(temp + size)
+
+/* TODO: Data serialization. */
+uint OMNI_serialize(OmniSerial **serial, const OmniCache *cache, bool UNUSED(serialize_data))
+{
+	OmniSerial *s;
+	uint size = sizeof(OmniCache) + (sizeof(OmniBlockInfo) * cache->num_blocks);
+
+	s = malloc(size);
+	*serial = s;
+
+	/* cache */
+	{
+		OmniCache *temp = (OmniCache *)s;
+
+		memcpy(temp, cache, sizeof(OmniCache));
+
+		temp->samples = NULL;
+		temp->num_samples_alloc = 0;
+		temp->num_samples_array = 0;
+		temp->num_samples_tot = 0;
+
+		cache_set_status(temp, OMNI_STATUS_CURRENT);
+		cache_unset_status(temp, OMNI_CACHE_STATUS_COMPLETE);
+
+		INCREMENT_SERIAL(1);
+	}
+
+	/* block_index */
+	{
+		OmniBlockInfo *temp = (OmniBlockInfo *)s;
+
+		memcpy(temp, cache->block_index, sizeof(OmniBlockInfo) * cache->num_blocks);
+
+		INCREMENT_SERIAL(cache->num_blocks);
+	}
+
+	return size;
+}
+
+OmniCache *OMNI_deserialize(OmniSerial *serial)
+{
+	OmniSerial *s = (OmniSerial *)serial;
+	OmniCache *cache;
+
+	/* cache */
+	{
+		OmniCache *temp = (OmniCache *)s;
+
+		cache = malloc(sizeof(OmniCache));
+		memcpy(cache, temp, sizeof(OmniCache));
+
+		INCREMENT_SERIAL(1);
+	}
+
+	/* block_index */
+	{
+		OmniBlockInfo *temp = (OmniBlockInfo *)s;
+
+		cache->block_index = malloc(sizeof(OmniBlockInfo) * cache->num_blocks);
+		memcpy(cache->block_index, temp, sizeof(OmniBlockInfo) * cache->num_blocks);
+
+		for (uint i = 0; i < cache->num_blocks; i++) {
+			cache->block_index[i].parent = cache;
+		}
+
+		INCREMENT_SERIAL(cache->num_blocks);
+	}
+
+	return cache;
+}
+
+#undef INCREMENT_SERIAL
