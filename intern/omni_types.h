@@ -132,7 +132,7 @@ typedef struct OmniCache {
 	OmniBlockInfo *block_index;
 	OmniSample *samples;
 
-	OmnicMetaGenCallback meta_gen;
+	OmniMetaGenCallback meta_gen;
 } OmniCache;
 
 #endif /* __OMNI_OMNI_TYPES_H__ */

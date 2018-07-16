@@ -73,7 +73,7 @@ typedef bool (*OmniReadCallback)(OmniData *omni_data, void *user_data);
 typedef bool (*OmniWriteCallback)(OmniData *omni_data, void *user_data);
 typedef bool (*OmniInterpCallback)(OmniInterpData *interp_data);
 
-typedef bool (*OmnicMetaGenCallback)(void *user_data, void *result);
+typedef bool (*OmniMetaGenCallback)(void *user_data, void *result);
 
 /*********
  * Flags *
@@ -129,7 +129,7 @@ typedef struct OmniCacheTemplate {
 
 	uint num_blocks;
 
-	OmnicMetaGenCallback meta_gen;
+	OmniMetaGenCallback meta_gen;
 } OmniCacheTemplate;
 
 typedef struct OmniBlockTemplate {
