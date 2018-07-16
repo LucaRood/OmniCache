@@ -283,3 +283,26 @@ void update_block_parents(OmniCache *cache)
 		} while (samp);
 	}
 }
+
+OmniBlockTemplate *block_template_find(OmniCacheTemplate *cache_temp, char *id, uint index)
+{
+	OmniBlockTemplate *block_temp = cache_temp->blocks;
+
+	if (index >= cache_temp->num_blocks) {
+		return NULL;
+	}
+
+	if (strncmp(id, block_temp[index].id, MAX_NAME) == 0) {
+		return &block_temp[index];
+	}
+
+	for (uint i = 0; i < cache_temp->num_blocks; i++) {
+		if (i != index &&
+		    strncmp(id, block_temp[i].id, MAX_NAME) == 0)
+		{
+			return &block_temp[i];
+		}
+	}
+
+	return NULL;
+}

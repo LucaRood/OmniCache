@@ -48,4 +48,6 @@ void init_sample_blocks(OmniSample *sample);
 void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const uint index);
 void update_block_parents(OmniCache *cache);
 
+OmniBlockTemplate *block_template_find(OmniCacheTemplate *cache_temp, char *id, uint index);
+
 #endif /* __OMNI_OMNI_UTILS_H__ */
