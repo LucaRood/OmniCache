@@ -113,6 +113,20 @@ typedef enum OmniConsolidationFlags {
  * Templates *
  *************/
 
+typedef struct OmniBlockTemplate {
+	char id[MAX_NAME];
+
+	OmniDataType data_type;
+	uint data_size; /* Only required if `dtype` == `OMNI_DATA_GENERIC` */
+
+	OmniBlockFlags flags;
+
+	OmniCountCallback count;
+	OmniReadCallback read;
+	OmniWriteCallback write;
+	OmniInterpCallback interp;
+} OmniBlockTemplate;
+
 typedef struct OmniCacheTemplate {
 	char id[MAX_NAME];
 
@@ -128,27 +142,11 @@ typedef struct OmniCacheTemplate {
 	OmniCacheFlags flags;
 
 	uint meta_size;
+	OmniMetaGenCallback meta_gen;
 
 	uint num_blocks;
-
-	OmniMetaGenCallback meta_gen;
+	OmniBlockTemplate blocks[];
 } OmniCacheTemplate;
-
-typedef struct OmniBlockTemplate {
-	char id[MAX_NAME];
-
-	OmniDataType data_type;
-	uint data_size; /* Only required if `dtype` == `OMNI_DATA_GENERIC` */
-
-	OmniBlockFlags flags;
-
-	OmniCountCallback count;
-	OmniReadCallback read;
-	OmniWriteCallback write;
-	OmniInterpCallback interp;
-} OmniBlockTemplate;
-
-typedef OmniBlockTemplate OmniBlockTemplateArray[];
 
 /*****************
  * API Functions *
@@ -161,7 +159,7 @@ typedef OmniBlockTemplate OmniBlockTemplateArray[];
 float_or_uint OMNI_f_to_fu(float val);
 float_or_uint OMNI_u_to_fu(uint val);
 
-OmniCache *OMNI_new(const OmniCacheTemplate *c_temp, const OmniBlockTemplateArray b_temp);
+OmniCache *OMNI_new(const OmniCacheTemplate *c_temp);
 OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data);
 void OMNI_free(OmniCache *cache);
 

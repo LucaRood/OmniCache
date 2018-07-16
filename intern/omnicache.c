@@ -278,7 +278,7 @@ float_or_uint OMNI_u_to_fu(uint val)
 	return fou;
 }
 
-OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplateArray block_temp)
+OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp)
 {
 	OmniCache *cache = calloc(1, sizeof(OmniCache));
 
@@ -301,15 +301,13 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 	cache->meta_gen = cache_temp->meta_gen;
 
 	/* Blocks */
-	assert(!(cache_temp->num_blocks != 0 && block_temp == NULL));
-
 	cache->num_blocks = cache_temp->num_blocks;
 
 	if (cache->num_blocks) {
 		cache->block_index = calloc(cache->num_blocks, sizeof(OmniBlockInfo));
 
 		for (uint i = 0; i < cache->num_blocks; i++) {
-			block_info_init(cache, &block_temp[i], i);
+			block_info_init(cache, &cache_temp->blocks[i], i);
 		}
 	}
 
