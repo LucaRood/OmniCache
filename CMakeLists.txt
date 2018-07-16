@@ -13,6 +13,7 @@ set(SRC
 	intern/omnicache.c
 	intern/utils.c
 	intern/omni_utils.c
+	intern/omni_serial.c
 )
 
 include_directories(${INC})

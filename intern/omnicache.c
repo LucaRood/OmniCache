@@ -5,6 +5,7 @@
 #include "omnicache.h"
 
 #include "omni_utils.h"
+#include "omni_serial.h"
 
 static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
                               OmniSample **prev, OmniSample **next)
@@ -700,73 +701,14 @@ void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time)
 #define INCREMENT_SERIAL(size) s = (OmniSerial *)(temp + size)
 
 /* TODO: Data serialization. */
-uint OMNI_serialize(OmniSerial **serial, const OmniCache *cache, bool UNUSED(serialize_data))
+uint OMNI_serialize(OmniSerial **serial, const OmniCache *cache, bool serialize_data)
 {
-	OmniSerial *s;
-	uint size = sizeof(OmniCache) + (sizeof(OmniBlockInfo) * cache->num_blocks);
-
-	s = malloc(size);
-	*serial = s;
-
-	/* cache */
-	{
-		OmniCache *temp = (OmniCache *)s;
-
-		memcpy(temp, cache, sizeof(OmniCache));
-
-		temp->samples = NULL;
-		temp->num_samples_alloc = 0;
-		temp->num_samples_array = 0;
-		temp->num_samples_tot = 0;
-
-		cache_set_status(temp, OMNI_STATUS_CURRENT);
-		cache_unset_status(temp, OMNI_CACHE_STATUS_COMPLETE);
-
-		INCREMENT_SERIAL(1);
-	}
-
-	/* block_index */
-	{
-		OmniBlockInfo *temp = (OmniBlockInfo *)s;
-
-		memcpy(temp, cache->block_index, sizeof(OmniBlockInfo) * cache->num_blocks);
-
-		INCREMENT_SERIAL(cache->num_blocks);
-	}
-
-	return size;
+	return serialize(serial, cache, serialize_data);
 }
 
-OmniCache *OMNI_deserialize(OmniSerial *serial)
+OmniCache *OMNI_deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
 {
-	OmniSerial *s = (OmniSerial *)serial;
-	OmniCache *cache;
-
-	/* cache */
-	{
-		OmniCache *temp = (OmniCache *)s;
-
-		cache = malloc(sizeof(OmniCache));
-		memcpy(cache, temp, sizeof(OmniCache));
-
-		INCREMENT_SERIAL(1);
-	}
-
-	/* block_index */
-	{
-		OmniBlockInfo *temp = (OmniBlockInfo *)s;
-
-		cache->block_index = malloc(sizeof(OmniBlockInfo) * cache->num_blocks);
-		memcpy(cache->block_index, temp, sizeof(OmniBlockInfo) * cache->num_blocks);
-
-		for (uint i = 0; i < cache->num_blocks; i++) {
-			cache->block_index[i].parent = cache;
-		}
-
-		INCREMENT_SERIAL(cache->num_blocks);
-	}
-
-	return cache;
+	return deserialize(serial, cache_temp);
 }
 
 #undef INCREMENT_SERIAL
