@@ -114,6 +114,8 @@ typedef enum OmniConsolidationFlags {
  *************/
 
 typedef struct OmniCacheTemplate {
+	char type_id[MAX_NAME];
+
 	OmniTimeType time_type;
 
 	/* Initial time and default step size.

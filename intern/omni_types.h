@@ -114,6 +114,8 @@ typedef enum OmniCacheStatusFlags {
 } OmniCacheStatusFlags;
 
 typedef struct OmniCache {
+	char type_id[MAX_NAME];
+
 	OmniTimeType ttype;
 	float_or_uint tinitial;
 	float_or_uint tfinal;

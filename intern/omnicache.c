@@ -288,6 +288,8 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const OmniBlockTemplate
 	assert(TTYPE_FLOAT(cache_temp->time_type) == cache_temp->time_step.isf);
 	assert(FU_LE(cache_temp->time_initial, cache_temp->time_final));
 
+	strncpy(cache->type_id, cache_temp->type_id, MAX_NAME);
+
 	cache->tinitial = cache_temp->time_initial;
 	cache->tfinal = cache_temp->time_final;
 	cache->tstep = cache_temp->time_step;
