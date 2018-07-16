@@ -6,8 +6,6 @@
 
 #include "omni_utils.h"
 
-#define MIN_SAMPLES 10
-
 static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
                               OmniSample **prev, OmniSample **next)
 {
@@ -30,13 +28,7 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 
 	if (stime.index >= cache->num_samples_alloc) {
 		if (create) {
-			uint size = MAX(cache->num_samples_alloc, MIN_SAMPLES);
-
-			if (stime.index >= size) {
-				size *= pow_u(2, (int)ceil(log2((double)(stime.index + 1) / (double)size)));
-			}
-
-			resize_sample_array(cache, size);
+			resize_sample_array(cache, min_array_size(stime.index));
 
 			update_block_parents(cache);
 		}

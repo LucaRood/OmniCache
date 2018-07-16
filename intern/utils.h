@@ -18,6 +18,8 @@
 #  define UNUSED(x) UNUSED_ ## x
 #endif
 
+#define MIN_ARRAY 32
+
 #define MIN(val1, val2) (val1 < val2 ? val1 : val2)
 #define MAX(val1, val2) (val1 > val2 ? val1 : val2)
 
@@ -43,6 +45,8 @@ float fu_float(float_or_uint fu);
 uint fu_uint(float_or_uint fu);
 
 uint pow_u(uint base, uint exp);
+
+uint min_array_size(uint index);
 
 void *dupalloc(const void *source, const size_t size);
 

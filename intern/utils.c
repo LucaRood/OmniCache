@@ -119,6 +119,15 @@ uint pow_u(uint base, uint exp)
 	return result;
 }
 
+uint min_array_size(uint index)
+{
+	if (MIN_ARRAY > index) {
+		return MIN_ARRAY;
+	}
+
+	return pow_u(2, (uint)ceil(log2((double)(index + 1))));
+}
+
 void *dupalloc(const void *source, const size_t size)
 {
 	if (!source) {
