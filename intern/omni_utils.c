@@ -253,7 +253,7 @@ void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const ui
 	b_info->dtype = b_temp->data_type;
 	b_info->flags = b_temp->flags;
 
-	strncpy(b_info->name, b_temp->name, MAX_NAME);
+	strncpy(b_info->id, b_temp->id, MAX_NAME);
 
 	b_info->dsize = DATA_SIZE(b_temp->data_type, b_temp->data_size);
 

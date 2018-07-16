@@ -46,7 +46,7 @@ typedef enum OmniStatusFlags {
 typedef struct OmniBlockInfo {
 	struct OmniCache *parent;
 
-	char name[MAX_NAME];
+	char id[MAX_NAME];
 
 	OmniDataType dtype;
 	uint dsize;
@@ -114,7 +114,7 @@ typedef enum OmniCacheStatusFlags {
 } OmniCacheStatusFlags;
 
 typedef struct OmniCache {
-	char type_id[MAX_NAME];
+	char id[MAX_NAME];
 
 	OmniTimeType ttype;
 	float_or_uint tinitial;

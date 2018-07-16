@@ -114,7 +114,7 @@ typedef enum OmniConsolidationFlags {
  *************/
 
 typedef struct OmniCacheTemplate {
-	char type_id[MAX_NAME];
+	char id[MAX_NAME];
 
 	OmniTimeType time_type;
 
@@ -135,7 +135,7 @@ typedef struct OmniCacheTemplate {
 } OmniCacheTemplate;
 
 typedef struct OmniBlockTemplate {
-	char name[MAX_NAME];
+	char id[MAX_NAME];
 
 	OmniDataType data_type;
 	uint data_size; /* Only required if `dtype` == `OMNI_DATA_GENERIC` */
