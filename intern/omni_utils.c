@@ -295,9 +295,9 @@ void update_block_parents(OmniCache *cache)
 	}
 }
 
-OmniBlockTemplate *block_template_find(OmniCacheTemplate *cache_temp, char *id, uint index)
+const OmniBlockTemplate *block_template_find(const OmniCacheTemplate *cache_temp, char *id, uint index)
 {
-	OmniBlockTemplate *block_temp = cache_temp->blocks;
+	const OmniBlockTemplate *block_temp = cache_temp->blocks;
 
 	if (index >= cache_temp->num_blocks) {
 		return NULL;

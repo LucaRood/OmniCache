@@ -48,7 +48,7 @@ uint serialize(OmniSerial **serial, const OmniCache *cache, bool UNUSED(serializ
 	return size;
 }
 
-OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
+OmniCache *deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp)
 {
 	OmniSerial *s = (OmniSerial *)serial;
 	OmniCache *cache;
@@ -94,7 +94,7 @@ OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
 
 		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			OmniBlockInfo *b_info = &cache->block_index[i];
-			OmniBlockTemplate *b_temp = NULL;
+			const OmniBlockTemplate *b_temp = NULL;
 
 			if (cache_temp) {
 				b_temp = block_template_find(cache_temp, temp->id, i);

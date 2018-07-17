@@ -8,6 +8,6 @@
 #include "omni_types.h"
 
 uint serialize(OmniSerial **serial, const OmniCache *cache, bool serialize_data);
-OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp);
+OmniCache *deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp);
 
 #endif /* __OMNI_OMNI_SERIAL_H__ */
