@@ -14,47 +14,32 @@
 uint serialize(OmniSerial **serial, const OmniCache *cache, bool UNUSED(serialize_data))
 {
 	OmniSerial *s;
-	uint size = sizeof(OmniSerialCache) + (sizeof(OmniSerialBlockInfo) * cache->num_blocks);
+	uint size = sizeof(OmniCacheDef) + (sizeof(OmniBlockInfoDef) * cache->def.num_blocks);
 
 	s = malloc(size);
 	*serial = s;
 
 	/* cache */
 	{
-		OmniSerialCache *temp = (OmniSerialCache *)s;
+		OmniCacheDef *temp = (OmniCacheDef *)s;
 
-		strncpy(temp->id, cache->id, MAX_NAME);
-
-		temp->ttype = cache->ttype;
-		temp->tinitial = cache->tinitial;
-		temp->tfinal = cache->tfinal;
-		temp->tstep = cache->tstep;
-
-		temp->flags = cache->flags;
-
-		temp->num_blocks = cache->num_blocks;
+		memcpy(temp, cache, sizeof(OmniCacheDef));
 
 		/* TODO: Respect serialize_data. */
 		temp->num_samples_array = 0;
 		temp->num_samples_tot = 0;
-
-		temp->msize = cache->msize;
 
 		INCREMENT_SERIAL();
 	}
 
 	/* block_index */
 	{
-		OmniSerialBlockInfo *temp = (OmniSerialBlockInfo *)s;
+		OmniBlockInfoDef *temp = (OmniBlockInfoDef *)s;
 
-		for (uint i = 0; i < cache->num_blocks; i++) {
+		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			OmniBlockInfo *block = &cache->block_index[i];
 
-			strncpy(temp->id, block->id, MAX_NAME);
-
-			temp->dtype = block->dtype;
-			temp->dsize = block->dsize;
-			temp->flags = block->flags;
+			memcpy(temp, block, sizeof(OmniBlockInfoDef));
 
 			INCREMENT_SERIAL();
 		}
@@ -70,7 +55,7 @@ OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
 
 	/* cache */
 	{
-		OmniSerialCache *temp = (OmniSerialCache *)s;
+		OmniCacheDef *temp = (OmniCacheDef *)s;
 
 		if (cache_temp &&
 		    strncmp(temp->id, cache_temp->id, MAX_NAME) != 0)
@@ -82,24 +67,12 @@ OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
 
 		cache = malloc(sizeof(OmniCache));
 
-		strncpy(cache->id, temp->id, MAX_NAME);
+		memcpy(cache, temp, sizeof(OmniCacheDef));
 
-		cache->ttype = temp->ttype;
-		cache->tinitial = temp->tinitial;
-		cache->tfinal = temp->tfinal;
-		cache->tstep = temp->tstep;
-
-		cache->flags = temp->flags;
 		cache_set_status(cache, OMNI_STATUS_CURRENT);
-
-		cache->num_blocks = temp->num_blocks;
 
 		/* TODO: Data deserialization. */
 		cache->num_samples_alloc = 0;
-		cache->num_samples_array = 0;
-		cache->num_samples_tot = 0;
-
-		cache->msize = temp->msize;
 
 		cache->samples = NULL;
 
@@ -115,11 +88,11 @@ OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
 
 	/* block_index */
 	{
-		OmniSerialBlockInfo *temp = (OmniSerialBlockInfo *)s;
+		OmniBlockInfoDef *temp = (OmniBlockInfoDef *)s;
 
-		cache->block_index = malloc(sizeof(OmniBlockInfo) * cache->num_blocks);
+		cache->block_index = malloc(sizeof(OmniBlockInfo) * cache->def.num_blocks);
 
-		for (uint i = 0; i < cache->num_blocks; i++) {
+		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			OmniBlockInfo *b_info = &cache->block_index[i];
 			OmniBlockTemplate *b_temp = NULL;
 
@@ -127,14 +100,9 @@ OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
 				b_temp = block_template_find(cache_temp, temp->id, i);
 			}
 
+			memcpy(b_info, temp, sizeof(OmniBlockInfoDef));
+
 			b_info->parent = cache;
-
-			strncpy(b_info->id, temp->id, MAX_NAME);
-
-			b_info->dtype = temp->dtype;
-			b_info->dsize = temp->dsize;
-
-			b_info->flags = temp->flags;
 
 			if (b_temp) {
 				b_info->count = b_temp->count;

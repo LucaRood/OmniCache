@@ -7,32 +7,6 @@
 
 #include "omni_types.h"
 
-typedef struct OmniSerialCache {
-	char id[MAX_NAME];
-
-	OmniTimeType ttype;
-	float_or_uint tinitial;
-	float_or_uint tfinal;
-	float_or_uint tstep;
-
-	OmniCacheFlags flags;
-
-	uint num_blocks;
-	uint num_samples_array;
-	uint num_samples_tot;
-
-	uint msize;
-} OmniSerialCache;
-
-typedef struct OmniSerialBlockInfo {
-	char id[MAX_NAME];
-
-	OmniDataType dtype;
-	uint dsize;
-
-	OmniBlockFlags flags;
-} OmniSerialBlockInfo;
-
 uint serialize(OmniSerial **serial, const OmniCache *cache, bool serialize_data);
 OmniCache *deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp);
 

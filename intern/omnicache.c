@@ -11,7 +11,7 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
                               OmniSample **prev, OmniSample **next)
 {
 #define ASS_PREV(cache, index) (index > 0 ? sample_last(&cache->samples[index - 1]) : NULL)
-#define ASS_NEXT(next, cache, nindex) (next ? next : (nindex < cache->num_samples_array ? &cache->samples[nindex] : NULL))
+#define ASS_NEXT(next, cache, nindex) (next ? next : (nindex < cache->def.num_samples_array ? &cache->samples[nindex] : NULL))
 
 	OmniSample *sample = NULL;
 
@@ -35,7 +35,7 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 		}
 		else {
 			if (prev) {
-				*prev = ASS_PREV(cache, cache->num_samples_array);
+				*prev = ASS_PREV(cache, cache->def.num_samples_array);
 			}
 
 			return NULL;
@@ -43,19 +43,19 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 	}
 
 	/* Increment array sample count until required sample, initializing all samples along the way. */
-	if (cache->num_samples_array <= stime.index) {
+	if (cache->def.num_samples_array <= stime.index) {
 		if (create) {
-			for (; cache->num_samples_array <= stime.index; cache->num_samples_array++) {
-				OmniSample *samp = &cache->samples[cache->num_samples_array];
+			for (; cache->def.num_samples_array <= stime.index; cache->def.num_samples_array++) {
+				OmniSample *samp = &cache->samples[cache->def.num_samples_array];
 
 				samp->parent = cache;
-				samp->tindex = cache->num_samples_array;
+				samp->tindex = cache->def.num_samples_array;
 				sample_set_status(samp, OMNI_SAMPLE_STATUS_SKIP);
 			}
 		}
 		else {
 			if (prev) {
-				*prev = ASS_PREV(cache, cache->num_samples_array);
+				*prev = ASS_PREV(cache, cache->def.num_samples_array);
 			}
 
 			return NULL;
@@ -127,7 +127,7 @@ static OmniSample *sample_get(OmniCache *cache, sample_time stime, bool create,
 			sample_set_status(sample, OMNI_STATUS_INITED);
 			sample_unset_status(sample, OMNI_SAMPLE_STATUS_SKIP);
 
-			cache->num_samples_tot++;
+			cache->def.num_samples_tot++;
 		}
 	}
 
@@ -152,7 +152,7 @@ static void blocks_free(OmniSample *sample)
 	OmniCache *cache = sample->parent;
 
 	if (sample->blocks) {
-		for (uint i = 0; i < cache->num_blocks; i++) {
+		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			free(sample->blocks[i].data);
 		}
 
@@ -194,7 +194,7 @@ static void sample_remove_list(OmniSample *sample)
 {
 	blocks_free(sample);
 
-	sample->parent->num_samples_tot--;
+	sample->parent->def.num_samples_tot--;
 
 	free(sample);
 }
@@ -204,7 +204,7 @@ static void sample_remove_root(OmniSample *sample)
 	blocks_free(sample);
 
 	if (!SAMPLE_IS_SKIPPED(sample)) {
-		sample->parent->num_samples_tot--;
+		sample->parent->def.num_samples_tot--;
 
 		sample_set_status(sample, OMNI_SAMPLE_STATUS_SKIP);
 	}
@@ -250,8 +250,8 @@ static void samples_free(OmniCache *cache)
 	}
 
 	cache->num_samples_alloc = 0;
-	cache->num_samples_array = 0;
-	cache->num_samples_tot = 0;
+	cache->def.num_samples_array = 0;
+	cache->def.num_samples_tot = 0;
 
 	cache_set_status(cache, OMNI_STATUS_CURRENT);
 }
@@ -289,25 +289,25 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp)
 	assert(TTYPE_FLOAT(cache_temp->time_type) == cache_temp->time_step.isf);
 	assert(FU_LE(cache_temp->time_initial, cache_temp->time_final));
 
-	strncpy(cache->id, cache_temp->id, MAX_NAME);
+	strncpy(cache->def.id, cache_temp->id, MAX_NAME);
 
-	cache->tinitial = cache_temp->time_initial;
-	cache->tfinal = cache_temp->time_final;
-	cache->tstep = cache_temp->time_step;
+	cache->def.tinitial = cache_temp->time_initial;
+	cache->def.tfinal = cache_temp->time_final;
+	cache->def.tstep = cache_temp->time_step;
 
-	cache->ttype = cache_temp->time_type;
-	cache->flags = cache_temp->flags;
-	cache->msize = cache_temp->meta_size;
+	cache->def.ttype = cache_temp->time_type;
+	cache->def.flags = cache_temp->flags;
+	cache->def.msize = cache_temp->meta_size;
 
 	cache->meta_gen = cache_temp->meta_gen;
 
 	/* Blocks */
-	cache->num_blocks = cache_temp->num_blocks;
+	cache->def.num_blocks = cache_temp->num_blocks;
 
-	if (cache->num_blocks) {
-		cache->block_index = calloc(cache->num_blocks, sizeof(OmniBlockInfo));
+	if (cache->def.num_blocks) {
+		cache->block_index = calloc(cache->def.num_blocks, sizeof(OmniBlockInfo));
 
-		for (uint i = 0; i < cache->num_blocks; i++) {
+		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			block_info_init(cache, &cache_temp->blocks[i], i);
 		}
 	}
@@ -321,10 +321,10 @@ OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data)
 {
 	OmniCache *cache = dupalloc(source, sizeof(OmniCache));
 
-	if (cache->num_blocks) {
-		cache->block_index = dupalloc(cache->block_index, sizeof(OmniBlockInfo) * cache->num_blocks);
+	if (cache->def.num_blocks) {
+		cache->block_index = dupalloc(cache->block_index, sizeof(OmniBlockInfo) * cache->def.num_blocks);
 
-		for (uint i = 0; i < cache->num_blocks; i++) {
+		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			cache->block_index[i].parent = cache;
 		}
 	}
@@ -332,19 +332,19 @@ OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data)
 	if (copy_data) {
 		cache->samples = dupalloc(cache->samples, sizeof(OmniSample) * cache->num_samples_alloc);
 
-		for (uint i = 0; i < cache->num_samples_array; i++) {
+		for (uint i = 0; i < cache->def.num_samples_array; i++) {
 			OmniSample *sample = &cache->samples[i];
 
 			do {
 				sample->parent = cache;
 
-				sample->blocks = dupalloc(sample->blocks, sizeof(OmniBlock) * cache->num_blocks);
+				sample->blocks = dupalloc(sample->blocks, sizeof(OmniBlock) * cache->def.num_blocks);
 
-				for (uint j = 0; j < cache->num_blocks; j++) {
+				for (uint j = 0; j < cache->def.num_blocks; j++) {
 					OmniBlock *block = &sample->blocks[j];
 
 					block->parent = sample;
-					block->data = dupalloc(block->data, cache->block_index[j].dsize * block->dcount);
+					block->data = dupalloc(block->data, cache->block_index[j].def.dsize * block->dcount);
 				}
 
 				sample->next = dupalloc(sample->next, sizeof(OmniSample));
@@ -358,8 +358,8 @@ OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data)
 		cache_unset_status(cache, OMNI_CACHE_STATUS_COMPLETE);
 
 		cache->num_samples_alloc = 0;
-		cache->num_samples_array = 0;
-		cache->num_samples_tot = 0;
+		cache->def.num_samples_array = 0;
+		cache->def.num_samples_tot = 0;
 
 		cache->samples = NULL;
 	}
@@ -379,10 +379,10 @@ void OMNI_block_add(OmniCache *cache, const OmniBlockTemplate *b_temp)
 {
 	samples_free(cache);
 
-	cache->num_blocks++;
-	cache->block_index = realloc(cache->block_index, sizeof(OmniBlockInfo) * cache->num_blocks);
+	cache->def.num_blocks++;
+	cache->block_index = realloc(cache->block_index, sizeof(OmniBlockInfo) * cache->def.num_blocks);
 
-	block_info_init(cache, b_temp, cache->num_blocks - 1);
+	block_info_init(cache, b_temp, cache->def.num_blocks - 1);
 }
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
@@ -393,7 +393,7 @@ OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *da
 		return OMNI_WRITE_INVALID;
 	}
 
-	for (uint i = 0; i < cache->num_blocks; i++) {
+	for (uint i = 0; i < cache->def.num_blocks; i++) {
 		OmniBlockInfo *b_info = &cache->block_index[i];
 		OmniBlock *block = &sample->blocks[i];
 		OmniData omni_data;
@@ -407,11 +407,11 @@ OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *da
 		block->dcount = dcount;
 
 		if (!block->data) {
-			block->data = malloc(b_info->dsize * block->dcount);
+			block->data = malloc(b_info->def.dsize * block->dcount);
 		}
 
-		omni_data.dtype = b_info->dtype;
-		omni_data.dsize = b_info->dsize;
+		omni_data.dtype = b_info->def.dtype;
+		omni_data.dsize = b_info->def.dsize;
 		omni_data.dcount = block->dcount;
 		omni_data.data = block->data;
 
@@ -431,7 +431,7 @@ OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *da
 
 	if (cache->meta_gen) {
 		if (!sample->meta.data) {
-			sample->meta.data = malloc(cache->msize);
+			sample->meta.data = malloc(cache->def.msize);
 		}
 
 		if (cache->meta_gen(data, sample->meta.data)) {
@@ -474,7 +474,7 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 		result |= OMNI_READ_OUTDATED;
 	}
 
-	for (uint i = 0; i < cache->num_blocks; i++) {
+	for (uint i = 0; i < cache->def.num_blocks; i++) {
 		OmniBlockInfo *b_info = &cache->block_index[i];
 		OmniBlock *block = &sample->blocks[i];
 		OmniData omni_data;
@@ -483,8 +483,8 @@ OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data
 			return OMNI_READ_INVALID;
 		}
 
-		omni_data.dtype = b_info->dtype;
-		omni_data.dsize = b_info->dsize;
+		omni_data.dtype = b_info->def.dtype;
+		omni_data.dsize = b_info->def.dsize;
 		omni_data.dcount = block->dcount;
 		omni_data.data = block->data;
 
@@ -505,27 +505,27 @@ void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint 
 	bool changed = false;
 
 	assert(FU_FL_GT(time_step, 0.0f));
-	assert(TTYPE_FLOAT(cache->ttype) == time_initial.isf);
-	assert(TTYPE_FLOAT(cache->ttype) == time_final.isf);
-	assert(TTYPE_FLOAT(cache->ttype) == time_step.isf);
+	assert(TTYPE_FLOAT(cache->def.ttype) == time_initial.isf);
+	assert(TTYPE_FLOAT(cache->def.ttype) == time_final.isf);
+	assert(TTYPE_FLOAT(cache->def.ttype) == time_step.isf);
 	assert(FU_LE(time_initial, time_final));
 
-	if (!FU_EQ(time_initial, cache->tinitial)) {
+	if (!FU_EQ(time_initial, cache->def.tinitial)) {
 		changed = true;
 
-		cache->tinitial = time_initial;
+		cache->def.tinitial = time_initial;
 	}
 
-	if (!FU_EQ(time_final, cache->tfinal)) {
+	if (!FU_EQ(time_final, cache->def.tfinal)) {
 		changed = true;
 
-		cache->tfinal = time_final;
+		cache->def.tfinal = time_final;
 	}
 
-	if (!FU_EQ(time_step, cache->tstep)) {
+	if (!FU_EQ(time_step, cache->def.tstep)) {
 		changed = true;
 
-		cache->tstep = time_step;
+		cache->def.tstep = time_step;
 	}
 
 	/* TODO: Optionally clip/extend cache instead of freeing. */
@@ -537,15 +537,15 @@ void OMNI_set_range(OmniCache *cache, float_or_uint time_initial, float_or_uint 
 void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint *time_final, float_or_uint *time_step)
 {
 	if (time_initial) {
-		*time_initial = cache->tinitial;
+		*time_initial = cache->def.tinitial;
 	}
 
 	if (time_final) {
-		*time_final = cache->tfinal;
+		*time_final = cache->def.tfinal;
 	}
 
 	if (time_step) {
-		*time_initial = cache->tstep;
+		*time_initial = cache->def.tstep;
 	}
 }
 

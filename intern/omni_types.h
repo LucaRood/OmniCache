@@ -43,15 +43,21 @@ typedef enum OmniStatusFlags {
 
 /* Block */
 
-typedef struct OmniBlockInfo {
-	struct OmniCache *parent;
-
+/* Block definition data. */
+typedef struct OmniBlockInfoDef {
 	char id[MAX_NAME];
 
 	OmniDataType dtype;
 	uint dsize;
 
 	OmniBlockFlags flags;
+} OmniBlockInfoDef;
+
+/* Block runtime data. */
+typedef struct OmniBlockInfo {
+	OmniBlockInfoDef def;
+
+	struct OmniCache *parent;
 
 	OmniCountCallback count;
 	OmniReadCallback read;
@@ -113,7 +119,8 @@ typedef enum OmniCacheStatusFlags {
 	OMNI_CACHE_STATUS_COMPLETE	= (1 << 16), /* Set if the whole frame range is cached (valid). */
 } OmniCacheStatusFlags;
 
-typedef struct OmniCache {
+/* Cache definition data. */
+typedef struct OmniCacheDef {
 	char id[MAX_NAME];
 
 	OmniTimeType ttype;
@@ -122,14 +129,21 @@ typedef struct OmniCache {
 	float_or_uint tstep;
 
 	OmniCacheFlags flags;
-	OmniCacheStatusFlags status;
 
 	uint num_blocks;
-	uint num_samples_alloc; /* Number of samples allocated in the array. */
 	uint num_samples_array; /* Number of samples initialized in the array. */
 	uint num_samples_tot; /* Total number of non-skipped initialized samples (including sub-samples) */
 
 	uint msize;
+} OmniCacheDef;
+
+/* Cache runtime data. */
+typedef struct OmniCache {
+	OmniCacheDef def;
+
+	OmniCacheStatusFlags status;
+
+	uint num_samples_alloc; /* Number of samples allocated in the array. */
 
 	OmniBlockInfo *block_index;
 	OmniSample *samples;

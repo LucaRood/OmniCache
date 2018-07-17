@@ -124,18 +124,18 @@ sample_time gen_sample_time(OmniCache *cache, float_or_uint time)
 {
 	sample_time result = {0};
 
-	assert(TTYPE_FLOAT(cache->ttype) == time.isf);
+	assert(TTYPE_FLOAT(cache->def.ttype) == time.isf);
 
-	if (FU_LT(time, cache->tinitial) || FU_GT(time, cache->tfinal)) {
+	if (FU_LT(time, cache->def.tinitial) || FU_GT(time, cache->def.tfinal)) {
 		result.ttype = OMNI_TIME_INVALID;
 		return result;
 	}
 
-	time = fu_sub(time, cache->tinitial);
+	time = fu_sub(time, cache->def.tinitial);
 
-	result.ttype = cache->ttype;
-	result.index = fu_uint(fu_div(time, cache->tstep));
-	result.offset = fu_mod(time, cache->tstep);
+	result.ttype = cache->def.ttype;
+	result.index = fu_uint(fu_div(time, cache->def.tstep));
+	result.offset = fu_mod(time, cache->def.tstep);
 
 	return result;
 }
@@ -173,7 +173,7 @@ void samples_iterate(OmniSample *start, iter_callback list,
 			}
 		}
 
-		for (uint i = index + 1; i < cache->num_samples_array; i++) {
+		for (uint i = index + 1; i < cache->def.num_samples_array; i++) {
 			curr = &cache->samples[i];
 			next = curr->next;
 
@@ -230,11 +230,11 @@ void init_sample_blocks(OmniSample *sample)
 	if (!sample->blocks) {
 		OmniCache *cache = sample->parent;
 
-		sample->blocks = calloc(cache->num_blocks, sizeof(OmniBlock));
-		sample->num_blocks_invalid = cache->num_blocks;
-		sample->num_blocks_outdated = cache->num_blocks;
+		sample->blocks = calloc(cache->def.num_blocks, sizeof(OmniBlock));
+		sample->num_blocks_invalid = cache->def.num_blocks;
+		sample->num_blocks_outdated = cache->def.num_blocks;
 
-		for (uint i = 0; i < cache->num_blocks; i++) {
+		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			OmniBlock *block = &sample->blocks[i];
 
 			block->parent = sample;
@@ -248,14 +248,14 @@ void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const ui
 {
 	OmniBlockInfo *b_info = &cache->block_index[index];
 
+	strncpy(b_info->def.id, b_temp->id, MAX_NAME);
+
+	b_info->def.dtype = b_temp->data_type;
+	b_info->def.flags = b_temp->flags;
+
+	b_info->def.dsize = DATA_SIZE(b_temp->data_type, b_temp->data_size);
+
 	b_info->parent = cache;
-
-	b_info->dtype = b_temp->data_type;
-	b_info->flags = b_temp->flags;
-
-	strncpy(b_info->id, b_temp->id, MAX_NAME);
-
-	b_info->dsize = DATA_SIZE(b_temp->data_type, b_temp->data_size);
 
 	assert(b_temp->count);
 	assert(b_temp->read);
@@ -269,12 +269,12 @@ void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const ui
 
 void update_block_parents(OmniCache *cache)
 {
-	for (uint i = 0; i < cache->num_samples_array; i++) {
+	for (uint i = 0; i < cache->def.num_samples_array; i++) {
 		OmniSample *samp = &cache->samples[i];
 
 		do {
 			if (samp->blocks) {
-				for (uint j = 0; j < cache->num_blocks; j++) {
+				for (uint j = 0; j < cache->def.num_blocks; j++) {
 					samp->blocks[j].parent = samp;
 				}
 			}
