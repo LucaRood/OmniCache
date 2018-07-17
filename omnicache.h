@@ -159,11 +159,11 @@ typedef struct OmniCacheTemplate {
 float_or_uint OMNI_f_to_fu(float val);
 float_or_uint OMNI_u_to_fu(uint val);
 
-OmniCache *OMNI_new(const OmniCacheTemplate *c_temp);
+OmniCache *OMNI_new(const OmniCacheTemplate *c_temp, const char blocks[]);
 OmniCache *OMNI_duplicate(const OmniCache *source, bool copy_data);
 void OMNI_free(OmniCache *cache);
 
-void OMNI_block_add(OmniCache *cache, const OmniBlockTemplate *b_temp);
+void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[]);
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data);

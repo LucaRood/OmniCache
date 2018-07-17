@@ -267,6 +267,17 @@ void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const ui
 	b_info->interp = b_temp->interp;
 }
 
+void block_info_array_init(OmniCache *cache, const OmniCacheTemplate *cache_temp, bool *mask)
+{
+	cache->block_index = malloc(sizeof(OmniBlockInfo) * cache->def.num_blocks);
+
+	for (uint i = 0, j = 0; i < cache_temp->num_blocks; i++) {
+		if (mask[i]) {
+			block_info_init(cache, &cache_temp->blocks[i], j++);
+		}
+	}
+}
+
 void update_block_parents(OmniCache *cache)
 {
 	for (uint i = 0; i < cache->def.num_samples_array; i++) {
@@ -305,4 +316,72 @@ OmniBlockTemplate *block_template_find(OmniCacheTemplate *cache_temp, char *id, 
 	}
 
 	return NULL;
+}
+
+static bool strcmp_delim(const char *str, const char *sub, char delim, uint *index)
+{
+	*index = 0;
+
+	while (*str == *sub &&
+	       *str != '\0' &&
+	       *str != delim &&
+	       *sub != '\0')
+	{
+		str++;
+		sub++;
+		(*index)++;
+	}
+
+	{
+		uint i = 0;
+
+		while (str[i] != '\0' &&
+		       str[i] != delim)
+		{
+			i++;
+		}
+
+		if (str[i] == '\0') {
+			*index += i;
+		}
+		else {
+			*index += i + 1;
+		}
+	}
+
+	if (*sub == '\0' && (*str == '\0' || *str == delim)) {
+		return true;
+	}
+
+	return false;
+}
+
+static bool block_id_in_str(const char id[], const char id_str[])
+{
+	uint index = 0;
+
+	while (id_str[index] != '\0') {
+		if (strcmp_delim(id, &id_str[index], ';', &index)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool *block_id_mask(const OmniCacheTemplate *cache_temp, const char id_str[], uint *num_blocks)
+{
+	bool *m = malloc(sizeof(bool) * cache_temp->num_blocks);
+
+	*num_blocks = 0;
+
+	for (uint i = 0; i < cache_temp->num_blocks; i++) {
+		m[i] = block_id_in_str(cache_temp->id, id_str);
+
+		if (m[i]) {
+			(*num_blocks)++;
+		}
+	}
+
+	return m;
 }

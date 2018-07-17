@@ -279,7 +279,7 @@ float_or_uint OMNI_u_to_fu(uint val)
 	return fou;
 }
 
-OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp)
+OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const char blocks[])
 {
 	OmniCache *cache = calloc(1, sizeof(OmniCache));
 
@@ -302,14 +302,10 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp)
 	cache->meta_gen = cache_temp->meta_gen;
 
 	/* Blocks */
-	cache->def.num_blocks = cache_temp->num_blocks;
+	if (cache_temp->num_blocks) {
+		bool *mask = block_id_mask(cache_temp, blocks, &cache->def.num_blocks);
 
-	if (cache->def.num_blocks) {
-		cache->block_index = calloc(cache->def.num_blocks, sizeof(OmniBlockInfo));
-
-		for (uint i = 0; i < cache->def.num_blocks; i++) {
-			block_info_init(cache, &cache_temp->blocks[i], i);
-		}
+		block_info_array_init(cache, cache_temp, mask);
 	}
 
 	cache_set_status(cache, OMNI_STATUS_CURRENT);
@@ -375,14 +371,26 @@ void OMNI_free(OmniCache *cache)
 	free(cache);
 }
 
-void OMNI_block_add(OmniCache *cache, const OmniBlockTemplate *b_temp)
+void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[])
 {
+	uint count = 0;
+	bool *mask = block_id_mask(cache_temp, blocks, &count);
+
+	for (uint i = 0; i < cache->def.num_blocks; i++) {
+		uint index = block_template_find(cache_temp, cache->block_index[i].def.id, i) - cache_temp->blocks;
+
+		if (mask[index] == false) {
+			count++;
+			mask[index] = true;
+		}
+	}
+
 	samples_free(cache);
 
-	cache->def.num_blocks++;
-	cache->block_index = realloc(cache->block_index, sizeof(OmniBlockInfo) * cache->def.num_blocks);
+	cache->def.num_blocks = count;
+	free(cache->block_index);
 
-	block_info_init(cache, b_temp, cache->def.num_blocks - 1);
+	block_info_array_init(cache, cache_temp, mask);
 }
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
