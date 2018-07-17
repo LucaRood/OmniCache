@@ -191,7 +191,9 @@ void OMNI_sample_mark_outdated_from(OmniCache *cache, float_or_uint time);
 void OMNI_sample_mark_invalid_from(OmniCache *cache, float_or_uint time);
 void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time);
 
+uint OMNI_serial_get_size(const OmniCache *cache, bool serialize_data);
 OmniSerial *OMNI_serialize(const OmniCache *cache, bool serialize_data, uint *size);
+void OMNI_serialize_to_buffer(OmniSerial *serial, const OmniCache *cache, bool serialize_data);
 OmniCache *OMNI_deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp);
 
 #endif /* __OMNI_OMNICACHE_H__ */
