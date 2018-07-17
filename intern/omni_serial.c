@@ -11,13 +11,16 @@
 #define INCREMENT_SERIAL() s = (OmniSerial *)(++temp)
 
 /* TODO: Data serialization. */
-uint serialize(OmniSerial **serial, const OmniCache *cache, bool UNUSED(serialize_data))
+OmniSerial *serialize(const OmniCache *cache, bool UNUSED(serialize_data), uint *size)
 {
-	OmniSerial *s;
-	uint size = sizeof(OmniCacheDef) + (sizeof(OmniBlockInfoDef) * cache->def.num_blocks);
+	OmniSerial *serial, *s;
+	uint si = sizeof(OmniCacheDef) + (sizeof(OmniBlockInfoDef) * cache->def.num_blocks);
 
-	s = malloc(size);
-	*serial = s;
+	if (size) {
+		*size = si;
+	}
+
+	serial = s = malloc(si);
 
 	/* cache */
 	{
@@ -45,7 +48,7 @@ uint serialize(OmniSerial **serial, const OmniCache *cache, bool UNUSED(serializ
 		}
 	}
 
-	return size;
+	return serial;
 }
 
 OmniCache *deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp)

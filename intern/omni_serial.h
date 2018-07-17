@@ -7,7 +7,7 @@
 
 #include "omni_types.h"
 
-uint serialize(OmniSerial **serial, const OmniCache *cache, bool serialize_data);
+OmniSerial *serialize(const OmniCache *cache, bool serialize_data, uint *size);
 OmniCache *deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp);
 
 #endif /* __OMNI_OMNI_SERIAL_H__ */

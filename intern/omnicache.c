@@ -709,9 +709,9 @@ void OMNI_sample_clear_from(OmniCache *cache, float_or_uint time)
 #define INCREMENT_SERIAL(size) s = (OmniSerial *)(temp + size)
 
 /* TODO: Data serialization. */
-uint OMNI_serialize(OmniSerial **serial, const OmniCache *cache, bool serialize_data)
+OmniSerial *OMNI_serialize(const OmniCache *cache, bool serialize_data, uint *size)
 {
-	return serialize(serial, cache, serialize_data);
+	return serialize(cache, serialize_data, size);
 }
 
 OmniCache *OMNI_deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
