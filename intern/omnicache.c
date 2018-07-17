@@ -306,6 +306,8 @@ OmniCache *OMNI_new(const OmniCacheTemplate *cache_temp, const char blocks[])
 		bool *mask = block_id_mask(cache_temp, blocks, &cache->def.num_blocks);
 
 		block_info_array_init(cache, cache_temp, mask);
+
+		free(mask);
 	}
 
 	cache_set_status(cache, OMNI_STATUS_CURRENT);
@@ -391,6 +393,8 @@ void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, cons
 	free(cache->block_index);
 
 	block_info_array_init(cache, cache_temp, mask);
+
+	free(mask);
 }
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
