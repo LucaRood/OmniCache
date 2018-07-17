@@ -714,7 +714,7 @@ OmniSerial *OMNI_serialize(const OmniCache *cache, bool serialize_data, uint *si
 	return serialize(cache, serialize_data, size);
 }
 
-OmniCache *OMNI_deserialize(OmniSerial *serial, OmniCacheTemplate *cache_temp)
+OmniCache *OMNI_deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp)
 {
 	return deserialize(serial, cache_temp);
 }
