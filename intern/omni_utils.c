@@ -320,7 +320,7 @@ const OmniBlockTemplate *block_template_find(const OmniCacheTemplate *cache_temp
 
 static bool strcmp_delim(const char *str, const char *sub, char delim, uint *index)
 {
-	*index = 0;
+	str += *index;
 
 	while (*str == *sub &&
 	       *str != '\0' &&
@@ -356,12 +356,12 @@ static bool strcmp_delim(const char *str, const char *sub, char delim, uint *ind
 	return false;
 }
 
-static bool block_id_in_str(const char id[], const char id_str[])
+static bool block_id_in_str(const char id_str[], const char id[])
 {
 	uint index = 0;
 
 	while (id_str[index] != '\0') {
-		if (strcmp_delim(id, &id_str[index], ';', &index)) {
+		if (strcmp_delim(id_str, id, ';', &index)) {
 			return true;
 		}
 	}
@@ -376,7 +376,7 @@ bool *block_id_mask(const OmniCacheTemplate *cache_temp, const char id_str[], ui
 	*num_blocks = 0;
 
 	for (uint i = 0; i < cache_temp->num_blocks; i++) {
-		m[i] = block_id_in_str(cache_temp->id, id_str);
+		m[i] = block_id_in_str(id_str, cache_temp->blocks[i].id);
 
 		if (m[i]) {
 			(*num_blocks)++;
