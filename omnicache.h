@@ -165,6 +165,7 @@ void OMNI_free(OmniCache *cache);
 
 void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[]);
 void OMNI_blocks_remove(OmniCache *cache, const char blocks[]);
+void OMNI_blocks_set(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[]);
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data);

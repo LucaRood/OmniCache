@@ -426,6 +426,20 @@ void OMNI_blocks_remove(OmniCache *cache, const char blocks[])
 	cache->def.num_blocks = num_blocks;
 }
 
+void OMNI_blocks_set(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[])
+{
+	bool *mask;
+
+	samples_free(cache);
+	free(cache->block_index);
+
+	mask = block_id_mask(cache_temp, blocks, &cache->def.num_blocks);
+
+	block_info_array_init(cache, cache_temp, mask);
+
+	free(mask);
+}
+
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)
 {
 	OmniSample *sample = sample_get_from_time(cache, time, true, NULL, NULL);
