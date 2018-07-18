@@ -50,6 +50,7 @@ void block_info_array_init(OmniCache *cache, const OmniCacheTemplate *cache_temp
 void update_block_parents(OmniCache *cache);
 
 const OmniBlockTemplate *block_template_find(const OmniCacheTemplate *cache_temp, char *id, uint index);
+bool block_id_in_str(const char id_str[], const char id[]);
 bool *block_id_mask(const OmniCacheTemplate *cache_temp, const char id_str[], uint *num_blocks);
 
 #endif /* __OMNI_OMNI_UTILS_H__ */

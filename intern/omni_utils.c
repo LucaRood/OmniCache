@@ -356,7 +356,7 @@ static bool strcmp_delim(const char *str, const char *sub, char delim, uint *ind
 	return false;
 }
 
-static bool block_id_in_str(const char id_str[], const char id[])
+bool block_id_in_str(const char id_str[], const char id[])
 {
 	uint index = 0;
 
@@ -372,15 +372,18 @@ static bool block_id_in_str(const char id_str[], const char id[])
 bool *block_id_mask(const OmniCacheTemplate *cache_temp, const char id_str[], uint *num_blocks)
 {
 	bool *m = malloc(sizeof(bool) * cache_temp->num_blocks);
-
-	*num_blocks = 0;
+	uint count = 0;
 
 	for (uint i = 0; i < cache_temp->num_blocks; i++) {
 		m[i] = block_id_in_str(id_str, cache_temp->blocks[i].id);
 
 		if (m[i]) {
-			(*num_blocks)++;
+			count++;
 		}
+	}
+
+	if (num_blocks) {
+		*num_blocks = count;
 	}
 
 	return m;
