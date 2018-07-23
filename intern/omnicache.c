@@ -379,7 +379,7 @@ void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, cons
 	bool *mask = block_id_mask(cache_temp, blocks, &count);
 
 	for (uint i = 0; i < cache->def.num_blocks; i++) {
-		uint index = block_template_find(cache_temp, cache->block_index[i].def.id, i) - cache_temp->blocks;
+		uint index = cache->block_index[i].def.index;
 
 		if (mask[index] == false) {
 			count++;

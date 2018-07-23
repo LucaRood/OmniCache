@@ -46,6 +46,7 @@ typedef enum OmniStatusFlags {
 /* Block definition data. */
 typedef struct OmniBlockInfoDef {
 	char id[MAX_NAME];
+	uint index;
 
 	OmniDataType dtype;
 	uint dsize;

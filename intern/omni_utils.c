@@ -244,11 +244,14 @@ void init_sample_blocks(OmniSample *sample)
 	}
 }
 
-void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const uint index)
+void block_info_init(OmniCache *cache, const OmniCacheTemplate *cache_temp,
+                     const uint target_index, const uint source_index)
 {
-	OmniBlockInfo *b_info = &cache->block_index[index];
+	const OmniBlockTemplate *b_temp = &cache_temp->blocks[source_index];
+	OmniBlockInfo *b_info = &cache->block_index[target_index];
 
 	strncpy(b_info->def.id, b_temp->id, MAX_NAME);
+	b_info->def.index = source_index;
 
 	b_info->def.dtype = b_temp->data_type;
 	b_info->def.flags = b_temp->flags;
@@ -273,7 +276,7 @@ void block_info_array_init(OmniCache *cache, const OmniCacheTemplate *cache_temp
 
 	for (uint i = 0, j = 0; i < cache_temp->num_blocks; i++) {
 		if (mask[i]) {
-			block_info_init(cache, &cache_temp->blocks[i], j++);
+			block_info_init(cache, cache_temp, j++, i);
 		}
 	}
 }
@@ -293,29 +296,6 @@ void update_block_parents(OmniCache *cache)
 			samp = samp->next;
 		} while (samp);
 	}
-}
-
-const OmniBlockTemplate *block_template_find(const OmniCacheTemplate *cache_temp, char *id, uint index)
-{
-	const OmniBlockTemplate *block_temp = cache_temp->blocks;
-
-	if (index >= cache_temp->num_blocks) {
-		return NULL;
-	}
-
-	if (strncmp(id, block_temp[index].id, MAX_NAME) == 0) {
-		return &block_temp[index];
-	}
-
-	for (uint i = 0; i < cache_temp->num_blocks; i++) {
-		if (i != index &&
-		    strncmp(id, block_temp[i].id, MAX_NAME) == 0)
-		{
-			return &block_temp[i];
-		}
-	}
-
-	return NULL;
 }
 
 static bool strcmp_delim(const char *str, const char *sub, char delim, uint *index)

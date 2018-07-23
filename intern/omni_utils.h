@@ -45,11 +45,10 @@ OmniSample *sample_last(OmniSample *sample);
 void resize_sample_array(OmniCache *cache, uint size);
 void init_sample_blocks(OmniSample *sample);
 
-void block_info_init(OmniCache *cache, const OmniBlockTemplate *b_temp, const uint index);
+void block_info_init(OmniCache *cache, const OmniCacheTemplate *cache_temp, const uint target_index, const uint source_index);
 void block_info_array_init(OmniCache *cache, const OmniCacheTemplate *cache_temp, bool *mask);
 void update_block_parents(OmniCache *cache);
 
-const OmniBlockTemplate *block_template_find(const OmniCacheTemplate *cache_temp, char *id, uint index);
 bool block_id_in_str(const char id_str[], const char id[]);
 bool *block_id_mask(const OmniCacheTemplate *cache_temp, const char id_str[], uint *num_blocks);
 

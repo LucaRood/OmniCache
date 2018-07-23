@@ -93,17 +93,14 @@ OmniCache *deserialize(OmniSerial *serial, const OmniCacheTemplate *cache_temp)
 
 		for (uint i = 0; i < cache->def.num_blocks; i++) {
 			OmniBlockInfo *b_info = &cache->block_index[i];
-			const OmniBlockTemplate *b_temp = NULL;
-
-			if (cache_temp) {
-				b_temp = block_template_find(cache_temp, temp->id, i);
-			}
 
 			memcpy(b_info, temp, sizeof(OmniBlockInfoDef));
 
 			b_info->parent = cache;
 
-			if (b_temp) {
+			if (cache_temp) {
+				const OmniBlockTemplate *b_temp = &cache_temp->blocks[temp->index];
+
 				b_info->count = b_temp->count;
 				b_info->read = b_temp->read;
 				b_info->write = b_temp->write;
