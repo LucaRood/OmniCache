@@ -373,6 +373,7 @@ void OMNI_free(OmniCache *cache)
 	free(cache);
 }
 
+/* TODO: Preserve settings from existing blocks. */
 void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[])
 {
 	uint count = 0;
@@ -426,6 +427,7 @@ void OMNI_blocks_remove(OmniCache *cache, const char blocks[])
 	cache->def.num_blocks = num_blocks;
 }
 
+/* TODO: Preserve settings from existing blocks. */
 void OMNI_blocks_set(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[])
 {
 	bool *mask;
@@ -438,6 +440,72 @@ void OMNI_blocks_set(OmniCache *cache, const OmniCacheTemplate *cache_temp, cons
 	block_info_array_init(cache, cache_temp, mask);
 
 	free(mask);
+}
+
+void OMNI_block_add_by_index(OmniCache *cache, const OmniCacheTemplate *cache_temp, const uint block)
+{
+	uint index = cache->def.num_blocks;
+	OmniBlockInfo *block_index;
+
+	/* Find where to insert the new block. */
+	while (index > 0 && block <= cache->block_index[index - 1].def.index) {
+		index--;
+	}
+
+	/* Block already exists. */
+	if (block == cache->block_index[index].def.index) {
+		return;
+	}
+
+	samples_free(cache);
+
+	block_index = malloc(sizeof(OmniBlockInfo) * (cache->def.num_blocks + 1));
+
+	/* Copy blocks before currently inserted block. */
+	memcpy(block_index, cache->block_index, sizeof(OmniBlockInfo) * index);
+
+	/* Copy blocks after currently inserted block. */
+	if (index < cache->def.num_blocks) {
+		memcpy(&block_index[index + 1], &cache->block_index[index], sizeof(OmniBlockInfo) * (cache->def.num_blocks - index));
+	}
+
+	free(cache->block_index);
+	cache->block_index = block_index;
+	cache->def.num_blocks++;
+
+	block_info_init(cache, cache_temp, index, block);
+}
+
+void OMNI_block_remove_by_index(OmniCache *cache, const uint block)
+{
+	uint index = cache->def.num_blocks - 1;
+	OmniBlockInfo *block_index;
+
+	/* Find block to remove. */
+	while (index > 0 && block != cache->block_index[index].def.index) {
+		index--;
+	}
+
+	/* Block does not exist. */
+	if (block != cache->block_index[index].def.index) {
+		return;
+	}
+
+	samples_free(cache);
+
+	cache->def.num_blocks--;
+
+	block_index = malloc(sizeof(OmniBlockInfo) * (cache->def.num_blocks));
+
+	/* Copy blocks before removed block. */
+	memcpy(block_index, cache->block_index, sizeof(OmniBlockInfo) * index);
+
+	if (index < cache->def.num_blocks) {
+		memcpy(&block_index[index], &cache->block_index[index + 1], sizeof(OmniBlockInfo) * (cache->def.num_blocks - index));
+	}
+
+	free(cache->block_index);
+	cache->block_index = block_index;
 }
 
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data)

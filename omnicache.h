@@ -167,6 +167,9 @@ void OMNI_blocks_add(OmniCache *cache, const OmniCacheTemplate *cache_temp, cons
 void OMNI_blocks_remove(OmniCache *cache, const char blocks[]);
 void OMNI_blocks_set(OmniCache *cache, const OmniCacheTemplate *cache_temp, const char blocks[]);
 
+void OMNI_block_add_by_index(OmniCache *cache, const OmniCacheTemplate *cache_temp, const uint block);
+void OMNI_block_remove_by_index(OmniCache *cache, const uint block);
+
 OmniWriteResult OMNI_sample_write(OmniCache *cache, float_or_uint time, void *data);
 OmniReadResult OMNI_sample_read(OmniCache *cache, float_or_uint time, void *data);
 
