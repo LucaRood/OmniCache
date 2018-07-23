@@ -355,7 +355,12 @@ bool *block_id_mask(const OmniCacheTemplate *cache_temp, const char id_str[], ui
 	uint count = 0;
 
 	for (uint i = 0; i < cache_temp->num_blocks; i++) {
-		m[i] = block_id_in_str(id_str, cache_temp->blocks[i].id);
+		if (cache_temp->blocks[i].flags & OMNI_BLOCK_FLAG_MANDATORY) {
+			m[i] = true;
+		}
+		else {
+			m[i] = block_id_in_str(id_str, cache_temp->blocks[i].id);
+		}
 
 		if (m[i]) {
 			count++;

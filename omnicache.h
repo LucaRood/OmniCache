@@ -95,7 +95,7 @@ typedef enum OmniReadResult {
 typedef enum OmniBlockFlags {
 	OMNI_BLOCK_FLAG_CONTINUOUS	= (1 << 0), /* Continuous data that can be interpolated. */
 	OMNI_BLOCK_FLAG_CONST_COUNT	= (1 << 1), /* Element count does not change between samples. (TODO: Check constness when writing) */
-	OMNI_BLOCK_FLAG_MANDATORY	= (1 << 2), /* This block is always present in the cache, and can't be removed. (TODO: Iplement actual functionality) */
+	OMNI_BLOCK_FLAG_MANDATORY	= (1 << 2), /* This block is always present in the cache, and can't be removed. (TODO: Respect this when removing blocks) */
 } OmniBlockFlags;
 
 typedef enum OmniCacheFlags {
