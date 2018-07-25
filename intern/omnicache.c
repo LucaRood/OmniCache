@@ -453,7 +453,7 @@ void OMNI_block_add_by_index(OmniCache *cache, const OmniCacheTemplate *cache_te
 	}
 
 	/* Block already exists. */
-	if (block == cache->block_index[index].def.index) {
+	if (index < cache->def.num_blocks && block == cache->block_index[index].def.index) {
 		return;
 	}
 
