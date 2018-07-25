@@ -672,6 +672,11 @@ void OMNI_get_range(OmniCache *cache, float_or_uint *time_initial, float_or_uint
 	}
 }
 
+uint OMNI_get_num_cached(OmniCache *cache)
+{
+	return cache->def.num_samples_tot;
+}
+
 bool OMNI_is_valid(OmniCache *cache)
 {
 	return IS_VALID(cache);
